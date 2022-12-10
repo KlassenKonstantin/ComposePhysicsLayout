@@ -24,7 +24,7 @@ import java.util.UUID
 @Composable
 fun PhysicsLayout(
     modifier: Modifier = Modifier,
-    simulation: Simulation,
+    simulation: Simulation = rememberSimulation(),
     content: @Composable PhysicsLayoutScope.() -> Unit,
 ) {
     Layout(
@@ -92,7 +92,7 @@ interface PhysicsLayoutScope {
      * Meta data that describes this Composable's bounds and behavior in the physics world.
      *
      * @id: The id the body should have in the simulation.
-     *      Useful for operations directly on bodies (not yet supported).
+     *      Useful for operations that act directly on bodies (not yet supported).
      * @shape: Describes the outer bounds of the body. Only [RoundedCornerShape]s are supported.
      * @isStatic: Set true for unmovable bodies like walls and floors.
      * @initialTranslation: Where this body should be placed in the layout.

@@ -1,5 +1,52 @@
 # Physics Layout
 This library offsers a custom [Jetpack Compose](https://developer.android.com/jetpack/compose) layout that is backed by some physics engine. Currently it is powered by and tightly coupled with [dyn4j](https://www.dyn4j.org).
 
+## Sample App
 https://user-images.githubusercontent.com/1836066/206856910-d2172e7e-64da-454e-99b9-8171cf5f5eeb.mov
 
+## Download (🚧)
+Not yet uploaded to Maven Central
+
+## How to use (🚧)
+To get started (and to be honest, there is not much you can currently do after you got started) create a `PhysicsLayout` and fill it with Composables. Every root level Composable in `PhysicsLayout` must use the `body` modifier to tell the simulation how the Composable behaves in the physics world. The `body` modifier can be configured with following parameters:
+- `id`: The id the body should have in the simulation. Useful for operations that act directly on bodies (not yet supported).
+- `shape`: Describes the outer bounds of the body. Only [RoundedCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/RoundedCornerShape)s are supported.
+- `isStatic`: Set true for unmovable bodies like walls and floors.
+- `initialTranslation`: Where this body should be placed in the layout. An `Offset` of (0,0) is the center of the layout, not top left.
+- `initialImpulse`: The impulse that should be applied to this body once it's placed into the world
+
+`PhysicsLayout` takes a `Simulation` as a parameter. Use `rememberSimulation` to create a Simulation. `rememberSimulation` is used as the default argument for `simulation`.
+
+### Example usage
+```kotlin
+PhysicsLayout {
+    Card(
+        modifier = Modifier.body(
+            shape = CircleShape,
+        ),
+        shape = CircleShape,
+    ) {
+        Icon(
+            modifier = Modifier
+                .size(32.dp)
+                .padding(4.dp),
+            imageVector = Icons.Default.Star,
+            contentDescription = "Star",
+            tint = Color.White
+        )
+    }
+}
+```
+This would add a ball with a star in the center of the layout, which then starts falling to the ground.
+
+> Note: The `shape` must be set on both the body modifier and the `Card`.
+
+### Change gravity
+If you need to change the gravity of the simulated world, use `Simulation.setGravity`
+
+## Caveats, notes, missing features
+- I don't think Compose was made to display hundrets of Composables at the same time. So maybe it's not a good idea to build a particle system out of this.
+- In general, what is true for all of Compose is especially true for this Layout: **Release builds perform way better than debug builds**.
+- State is not restored on config changes 😱.
+- Currently there is no way to interact with the bodies.
+- Currently there is no way to observe bodies / collosions / etc.
