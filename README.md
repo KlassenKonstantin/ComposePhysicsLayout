@@ -1,11 +1,17 @@
 # Physics Layout
 This library offsers a custom [Jetpack Compose](https://developer.android.com/jetpack/compose) layout that is backed by some physics engine. Currently it is powered by and tightly coupled with [dyn4j](https://www.dyn4j.org).
 
+![Maven Central](https://img.shields.io/maven-central/v/io.github.klassenkonstantin/physics-layout?style=flat-square&versionPrefix=0.1)
+
 ## Sample App
 https://user-images.githubusercontent.com/1836066/206856910-d2172e7e-64da-454e-99b9-8171cf5f5eeb.mov
 
-## Download (🚧)
-Not yet uploaded to Maven Central
+## Download
+```
+dependencies {
+    implementation 'io.github.klassenkonstantin:physics-layout:<version>'
+}
+```
 
 ## How to use (🚧)
 To get started (and to be honest, there is not much you can currently do after you got started) create a `PhysicsLayout` and fill it with Composables. Every root level Composable in `PhysicsLayout` must use the `body` modifier to tell the simulation how the Composable behaves in the physics world. The `body` modifier can be configured with following parameters:
