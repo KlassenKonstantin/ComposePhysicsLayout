@@ -24,6 +24,7 @@ class Simulation internal constructor(
     private val density: Density,
 ) {
     internal val transformations = mutableStateMapOf<String, Transformation>()
+    private val dragDelegate: DragDelegate = DefaultDragDelegate(world)
 
     fun setGravity(offset: Offset) {
         world.gravity = offset.toVector2()
@@ -71,6 +72,10 @@ class Simulation internal constructor(
                 updateBody(body, bodyMetaData)
             }
         }
+    }
+
+    internal fun drag(bodyId: String, touchEvent: TouchEvent) {
+        dragDelegate.drag(bodyId, touchEvent.toWorldTouchEvent())
     }
 
     private fun createBody(
@@ -130,6 +135,14 @@ class Simulation internal constructor(
         shape = shape,
         isStatic = isStatic
     )
+
+    private fun Offset.toVector2() = Vector2(x.toDouble(), y.toDouble())
+    private fun Offset.toWorldVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
+    private fun TouchEvent.toWorldTouchEvent() = WorldTouchEvent(
+        pointerId = pointerId,
+        localOffset = localOffset.toWorldVector2(),
+        type = type
+    )
 }
 
 @Composable
@@ -177,6 +190,12 @@ internal enum class WorldBorder {
     TOP, BOTTOM, LEFT, RIGHT
 }
 
+data class WorldTouchEvent(
+    val pointerId: Long,
+    val localOffset: Vector2,
+    val type: TouchType
+)
+
 @Immutable
 internal data class Transformation(
     val translationX: Float,
@@ -197,5 +216,3 @@ private val DEFAULT_WORLD = World<Body>().apply {
     addBody(Body().apply { userData = WorldBorder.LEFT })
     addBody(Body().apply { userData = WorldBorder.RIGHT })
 }
-
-private fun Offset.toVector2() = Vector2(x.toDouble(), y.toDouble())

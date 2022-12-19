@@ -13,6 +13,10 @@ internal fun World<Body>.findBodyByUserData(userData: Any): Body? {
     return null
 }
 
+internal inline fun <reified T> World<Body>.findBodiesByUserDataType() = bodies.filter {
+    it.userData is T
+}
+
 internal fun World<Body>.removeBodiesWithIdNotIn(ids: List<String>): List<String> {
     val removedIds = mutableListOf<String>()
     val iterator = bodyIterator

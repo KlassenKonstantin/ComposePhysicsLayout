@@ -268,7 +268,8 @@ fun PhysicsLayoutScope.Star(
         modifier = Modifier.body(
             shape = CircleShape,
             initialTranslation = Offset(offset.x, offset.y),
-            initialImpulse = Offset((Random.nextFloat() - 0.5f) * 2, (Random.nextFloat()) * 2)
+            initialImpulse = Offset((Random.nextFloat() - 0.5f) * 2, (Random.nextFloat()) * 2),
+            draggable = true
         ),
         shape = CircleShape,
         colors = CardDefaults.cardColors(containerColor = color)

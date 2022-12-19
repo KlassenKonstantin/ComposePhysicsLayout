@@ -1,5 +1,6 @@
 package de.apuri.physicslayout.lib
 
+import android.util.Log
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -28,8 +29,9 @@ fun PhysicsLayout(
     content: @Composable PhysicsLayoutScope.() -> Unit,
 ) {
     Layout(
-        modifier = modifier.onSizeChanged(simulation::updateWorldSize),
-        content = { PhysicsLayoutScopeInstance.content() }
+        modifier = modifier
+            .onSizeChanged(simulation::updateWorldSize),
+        content = { remember(simulation) { PhysicsLayoutScopeInstance(simulation) }.content() }
     ) { measurables, constraints: Constraints ->
         check(measurables.none { it.parentData as? BodyChildData == null } ) {
             "All Composables must use the body modifier"
@@ -106,10 +108,13 @@ interface PhysicsLayoutScope {
         isStatic: Boolean = false,
         initialTranslation: Offset = Offset.Zero,
         initialImpulse: Offset = Offset.Zero,
+        draggable: Boolean = false
     ): Modifier
 }
 
-private object PhysicsLayoutScopeInstance : PhysicsLayoutScope {
+private class PhysicsLayoutScopeInstance(
+    private val simulation: Simulation
+) : PhysicsLayoutScope {
     @Stable
     override fun Modifier.body(
         id: String?,
@@ -117,6 +122,7 @@ private object PhysicsLayoutScopeInstance : PhysicsLayoutScope {
         isStatic: Boolean,
         initialTranslation: Offset,
         initialImpulse: Offset,
+        draggable: Boolean
     ) = composed {
         val bodyId = id ?: remember { UUID.randomUUID().toString() }
         BodyChildData(
@@ -125,6 +131,8 @@ private object PhysicsLayoutScopeInstance : PhysicsLayoutScope {
             isStatic = isStatic,
             initialTranslation = initialTranslation,
             initialImpulse = initialImpulse
-        )
+        ).then(if (draggable) {
+            touch { simulation.drag(bodyId, it) }
+        } else this)
     }
 }
