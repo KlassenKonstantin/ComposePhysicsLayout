@@ -13,6 +13,10 @@ internal fun World<Body>.findBodyByUserData(userData: Any): Body? {
     return null
 }
 
+internal fun World<Body>.findBodyById(id: String) = findBodiesByUserDataType<BodyMetaData>().firstOrNull {
+    (it.userData as BodyMetaData).id == id
+}
+
 internal inline fun <reified T> World<Body>.findBodiesByUserDataType() = bodies.filter {
     it.userData is T
 }

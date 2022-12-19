@@ -62,7 +62,7 @@ class Simulation internal constructor(
         removeBodiesWithIdNotIn(layoutItems.map { it.id })
         layoutItems.forEach {
             val bodyMetaData = it.toBodyMetaData()
-            val body = world.findBodyByUserData(bodyMetaData)
+            val body = world.findBodyById(bodyMetaData.id)
             if (body == null) {
                 createBody(bodyMetaData, it).also { newBody ->
                     world.addBody(newBody)
