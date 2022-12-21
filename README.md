@@ -3,6 +3,9 @@
 
 This library offsers a [dyn4j](https://www.dyn4j.org) wrapper for [Jetpack Compose](https://developer.android.com/jetpack/compose).
 
+## 🚧 Experimental 🚧
+Before reaching version 1.0, this library is considered experimental, which means that there is no guaranteed backwards compatibility between versions. Signatures, interfaces, names, etc. may and will most likely change.
+
 ## Sample App
 https://user-images.githubusercontent.com/1836066/206856910-d2172e7e-64da-454e-99b9-8171cf5f5eeb.mov
 
@@ -13,7 +16,7 @@ dependencies {
 }
 ```
 
-## How to use (🚧)
+## How to use
 To get started, create a `PhysicsLayout` and fill it with Composables. Every root level Composable in `PhysicsLayout` must use the `body` modifier to tell the simulation how the Composable should behave in the physics world. The `body` modifier can be configured with following parameters:
 - `id`: The id the body should have in the simulation. Useful for operations that act directly on bodies (not yet supported).
 - `shape`: Describes the outer bounds of the body. Only [RoundedCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/RoundedCornerShape)s are supported.
