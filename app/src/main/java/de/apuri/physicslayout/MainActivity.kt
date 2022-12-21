@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -35,9 +36,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -46,6 +50,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import de.apuri.physicslayout.lib.DragConfig
 import de.apuri.physicslayout.lib.PhysicsLayout
 import de.apuri.physicslayout.lib.PhysicsLayoutScope
 import de.apuri.physicslayout.lib.rememberSimulation
@@ -194,12 +199,21 @@ fun PhysicsLayoutScope.StarCounterContainer(
     provideBlueCount: () -> Int,
     provideGreenCount: () -> Int,
 ) {
+    var dragConfig by remember { mutableStateOf<DragConfig>(DragConfig.NotDraggable) }
+
     Card(
         modifier = Modifier
             .body(
                 shape = RoundedCornerShape(8.dp),
-                isStatic = true
+                isStatic = dragConfig is DragConfig.NotDraggable,
+                dragConfig = dragConfig,
             )
+            .pointerInput(Unit) {
+                awaitPointerEventScope {
+                    awaitFirstDown()
+                    dragConfig = DragConfig.Draggable()
+                }
+            }
     ) {
         Row(
             Modifier
@@ -240,11 +254,11 @@ fun StarCounter(color: Color, provideCount: () -> Int) {
             targetState = provideCount(),
             transitionSpec = {
                 if (targetState > initialState) {
-                    slideInVertically { height -> height/3 } + fadeIn() with
-                            slideOutVertically { height -> -height/3 } + fadeOut()
+                    slideInVertically { height -> height / 3 } + fadeIn() with
+                            slideOutVertically { height -> -height / 3 } + fadeOut()
                 } else {
-                    slideInVertically { height -> -height/3 } + fadeIn() with
-                            slideOutVertically { height -> height/3 } + fadeOut()
+                    slideInVertically { height -> -height / 3 } + fadeIn() with
+                            slideOutVertically { height -> height / 3 } + fadeOut()
                 }.using(
                     SizeTransform(clip = false)
                 )
@@ -269,14 +283,14 @@ fun PhysicsLayoutScope.Star(
             shape = CircleShape,
             initialTranslation = Offset(offset.x, offset.y),
             initialImpulse = Offset((Random.nextFloat() - 0.5f) * 2, (Random.nextFloat()) * 2),
-            draggable = true
+            dragConfig = DragConfig.Draggable()
         ),
         shape = CircleShape,
         colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Icon(
             modifier = Modifier
-                .size(32.dp)
+                .size(48.dp)
                 .padding(4.dp),
             imageVector = Icons.Default.Star,
             contentDescription = "",

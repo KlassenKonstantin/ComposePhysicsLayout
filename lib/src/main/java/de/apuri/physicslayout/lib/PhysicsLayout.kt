@@ -92,23 +92,40 @@ interface PhysicsLayoutScope {
 
     /**
      * Meta data that describes this Composable's bounds and behavior in the physics world.
-     *
-     * @id: The id the body should have in the simulation.
-     *      Useful for operations that act directly on bodies (not yet supported).
-     * @shape: Describes the outer bounds of the body. Only [RoundedCornerShape]s are supported.
-     * @isStatic: Set true for unmovable bodies like walls and floors.
-     * @initialTranslation: Where this body should be placed in the layout.
-     *                      An Offset of (0,0) is the center of the layout, not top left.
-     * @initialImpulse: The impulse that should be applied to this body once it's placed into the world
      */
     @Stable
     fun Modifier.body(
+        /**
+         * The id the body should have in the simulation.
+         * Useful for operations that act directly on bodies (not yet supported).
+         */
         id: String? = null,
+
+        /**
+         * Describes the outer bounds of the body. Only [RoundedCornerShape]s are supported.
+         */
         shape: RoundedCornerShape = RoundedCornerShape(0.dp),
+
+        /**
+         * Set true for unmovable bodies like walls and floors.
+         */
         isStatic: Boolean = false,
+
+        /**
+         * Where this body should be placed in the layout.
+         * An Offset of (0,0) is the center of the layout, not top left.
+         */
         initialTranslation: Offset = Offset.Zero,
+
+        /**
+         * The impulse that should be applied to this body once it's placed into the world
+         */
         initialImpulse: Offset = Offset.Zero,
-        draggable: Boolean = false
+
+        /**
+         * Set to [DragConfig.Draggable] to enable drag support
+         */
+        dragConfig: DragConfig = DragConfig.NotDraggable
     ): Modifier
 }
 
@@ -122,7 +139,7 @@ private class PhysicsLayoutScopeInstance(
         isStatic: Boolean,
         initialTranslation: Offset,
         initialImpulse: Offset,
-        draggable: Boolean
+        dragConfig: DragConfig
     ) = composed {
         val bodyId = id ?: remember { UUID.randomUUID().toString() }
         BodyChildData(
@@ -131,8 +148,42 @@ private class PhysicsLayoutScopeInstance(
             isStatic = isStatic,
             initialTranslation = initialTranslation,
             initialImpulse = initialImpulse
-        ).then(if (draggable) {
-            touch { simulation.drag(bodyId, it) }
-        } else this)
+        ).then(
+            if(dragConfig is DragConfig.Draggable) {
+                touch { simulation.drag(bodyId, it, dragConfig) }
+            } else {
+                Modifier
+            }
+        )
     }
 }
+
+@Immutable
+sealed class DragConfig {
+    object NotDraggable: DragConfig()
+
+    /**
+     * Connects the body and the touch point with a [org.dyn4j.dynamics.joint.PinJoint].
+     * Each pointer creates its own PinJoin.
+     */
+    data class Draggable(
+        /**
+         * The oscillation frequency in hz
+         */
+        val frequency: Double = DEF_FREQUENCY,
+
+        /**
+         * The damping ratio
+         */
+        val dampingRatio: Double = DEF_DAMPING_RATIO,
+
+        /**
+         * The maximum force
+         */
+        val maxForce: Double = DEF_MAX_FORCE,
+    ) : DragConfig()
+}
+
+const val DEF_FREQUENCY = 15.0
+const val DEF_DAMPING_RATIO = 0.3
+const val DEF_MAX_FORCE = 700.0

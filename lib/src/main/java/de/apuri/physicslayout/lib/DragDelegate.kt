@@ -4,36 +4,60 @@ import org.dyn4j.dynamics.Body
 import org.dyn4j.dynamics.joint.PinJoint
 import org.dyn4j.world.World
 
-interface DragDelegate {
-    fun drag(bodyId: String, touchEvent: WorldTouchEvent)
+internal interface DragDelegate {
+    fun drag(
+        bodyId: String,
+        touchEvent: WorldTouchEvent,
+        dragConfig: DragConfig.Draggable
+    )
 }
 
 internal class DefaultDragDelegate(
     private val world: World<Body>
 ) : DragDelegate {
     private val joints = mutableMapOf<JointKey, PinJoint<Body>>()
-    override fun drag(bodyId: String, touchEvent: WorldTouchEvent) {
+
+    override fun drag(
+        bodyId: String,
+        touchEvent: WorldTouchEvent,
+        dragConfig: DragConfig.Draggable
+    ) {
+        val key = JointKey(bodyId, touchEvent.pointerId)
         when (touchEvent.type) {
             TouchType.DOWN -> {
-                world.findBodiesByUserDataType<BodyMetaData>().firstOrNull {
-                    (it.userData as BodyMetaData).id == bodyId
-                }?.let {
-                    val joint = PinJoint(it, it.getWorldPoint(touchEvent.localOffset), 10.0, 1.0, 700.0)
-                    joints[JointKey(bodyId, touchEvent.pointerId)] = joint
-                    world.addJoint(joint)
-                }
+                getOrPutJoint(key, touchEvent, dragConfig)
             }
 
             TouchType.MOVE -> {
-                world.findBodiesByUserDataType<BodyMetaData>().firstOrNull {
-                    (it.userData as BodyMetaData).id == bodyId
-                }?.let {
-                    joints[JointKey(bodyId, touchEvent.pointerId)]?.target = it.getWorldPoint(touchEvent.localOffset)
+                getOrPutJoint(key, touchEvent, dragConfig)?.apply {
+                    target = body1.getWorldPoint(touchEvent.localOffset)
+                    frequency = dragConfig.frequency
+                    dampingRatio = dragConfig.dampingRatio
+                    maximumForce = dragConfig.maxForce
                 }
+
             }
 
             TouchType.UP -> {
-                world.removeJoint(joints.remove(JointKey(bodyId, touchEvent.pointerId)))
+                world.removeJoint(joints.remove(key))
+            }
+        }
+    }
+
+    private fun getOrPutJoint(
+        jointKey: JointKey,
+        touchEvent: WorldTouchEvent,
+        dragConfig: DragConfig.Draggable
+    ) = world.findBodyById(jointKey.bodyId)?.let { body ->
+        joints.getOrPut(jointKey) {
+            PinJoint(
+                body,
+                body.getWorldPoint(touchEvent.localOffset),
+                dragConfig.frequency,
+                dragConfig.dampingRatio,
+                dragConfig.maxForce
+            ).also {
+                world.addJoint(it)
             }
         }
     }

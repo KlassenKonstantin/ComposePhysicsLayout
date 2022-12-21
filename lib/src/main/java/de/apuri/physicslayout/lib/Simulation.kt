@@ -74,14 +74,15 @@ class Simulation internal constructor(
         }
     }
 
-    internal fun drag(bodyId: String, touchEvent: TouchEvent) {
-        dragDelegate.drag(bodyId, touchEvent.toWorldTouchEvent())
+    internal fun drag(bodyId: String, touchEvent: TouchEvent, dragConfig: DragConfig.Draggable) {
+        dragDelegate.drag(bodyId, touchEvent.toWorldTouchEvent(), dragConfig)
     }
 
     private fun createBody(
         bodyMetaData: BodyMetaData,
         layoutItem: LayoutItem,
     ) = Body().apply {
+        angularDamping = 0.7
         isAtRestDetectionEnabled = false
         userData = bodyMetaData
         applyFixtures(bodyMetaData)

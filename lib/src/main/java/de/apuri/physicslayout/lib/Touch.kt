@@ -13,7 +13,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 data class TouchEvent(
     val pointerId: Long,
     val localOffset: Offset,
-    val type: TouchType
+    val type: TouchType,
 )
 
 enum class TouchType {
@@ -26,9 +26,7 @@ fun Modifier.touch(
     val center = Offset(size.width / 2f, size.height / 2f)
     forEachGesture {
         awaitPointerEventScope {
-            val firstDown = awaitFirstDown()
-            val localOffset = firstDown.position - center
-            onTouchEvent(TouchEvent(firstDown.id.value, localOffset, TouchType.DOWN))
+            awaitFirstDown()
             do {
                 val event = awaitPointerEvent()
                 event.changes.forEach { change ->
@@ -37,7 +35,14 @@ fun Modifier.touch(
                         change.changedToUp() -> TouchType.UP
                         else -> TouchType.MOVE
                     }
-                    onTouchEvent(TouchEvent(change.id.value, change.position - center, type))
+
+                    onTouchEvent(
+                        TouchEvent(
+                            pointerId = change.id.value,
+                            localOffset = change.position - center,
+                            type = type,
+                        )
+                    )
                 }
             } while (!event.changes.all { it.changedToUp() })
         }
