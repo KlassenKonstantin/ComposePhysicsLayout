@@ -26,7 +26,6 @@ fun Modifier.touch(
     val center = Offset(size.width / 2f, size.height / 2f)
     forEachGesture {
         awaitPointerEventScope {
-            awaitFirstDown()
             do {
                 val event = awaitPointerEvent()
                 event.changes.forEach { change ->
