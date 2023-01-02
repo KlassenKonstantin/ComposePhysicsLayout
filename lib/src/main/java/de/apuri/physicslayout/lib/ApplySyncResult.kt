@@ -1,7 +1,7 @@
 package de.apuri.physicslayout.lib
 
 import de.apuri.physicslayout.lib.shape.createFixtures
-import org.dyn4j.dynamics.Body
+import de.apuri.physicslayout.lib.world.Body
 import org.dyn4j.geometry.MassType
 
 internal interface ApplySyncResult {
@@ -40,7 +40,10 @@ internal class DefaultApplySyncResult(
 
     private fun createBody(
         worldBody: WorldBody
-    ) = Body().apply {
+    ) = Body(
+        worldBody.width,
+        worldBody.height
+    ).apply {
         angularDamping = 0.7
         isAtRestDetectionEnabled = false
         applyFixtures(worldBody)
@@ -51,6 +54,7 @@ internal class DefaultApplySyncResult(
         body: Body,
         newWorldBody: WorldBody
     ) = body.apply {
+        updateSize(newWorldBody.width, newWorldBody.height)
         applyFixtures(newWorldBody)
         setMass(if (newWorldBody.isStatic) MassType.INFINITE else MassType.NORMAL)
     }

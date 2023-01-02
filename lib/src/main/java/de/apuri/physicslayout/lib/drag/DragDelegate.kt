@@ -1,6 +1,6 @@
 package de.apuri.physicslayout.lib.drag
 
-import org.dyn4j.dynamics.Body
+import de.apuri.physicslayout.lib.world.Body
 import org.dyn4j.dynamics.joint.PinJoint
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World

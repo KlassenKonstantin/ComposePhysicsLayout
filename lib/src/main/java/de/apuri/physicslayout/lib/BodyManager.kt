@@ -1,6 +1,6 @@
 package de.apuri.physicslayout.lib
 
-import org.dyn4j.dynamics.Body
+import de.apuri.physicslayout.lib.world.Body
 import org.dyn4j.world.World
 
 internal class BodyManager(

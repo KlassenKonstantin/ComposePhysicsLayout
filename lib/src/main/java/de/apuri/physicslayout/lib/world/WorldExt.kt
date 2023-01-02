@@ -1,7 +1,6 @@
 package de.apuri.physicslayout.lib.world
 
 import de.apuri.physicslayout.lib.WorldBorder
-import org.dyn4j.dynamics.Body
 import org.dyn4j.geometry.Geometry
 import org.dyn4j.geometry.MassType
 import org.dyn4j.world.World
@@ -36,13 +35,15 @@ private fun World<Body>.updateWorldBorder() {
     val borderThickness = 1.0
     val halfBorderThickness = borderThickness / 2
 
+    val worldWidth = width
+    val worldHeight = height
     val halfWidth = width / 2
     val halfHeight = height / 2
 
     // wall top
     findBodyByUserData(WorldBorder.TOP)?.apply {
         removeAllFixtures()
-        addFixture(Geometry.createRectangle(width, borderThickness))
+        addFixture(Geometry.createRectangle(worldWidth, borderThickness))
         setMass(MassType.INFINITE)
         translate(0.0, -halfHeight - halfBorderThickness)
     }
@@ -50,7 +51,7 @@ private fun World<Body>.updateWorldBorder() {
     // wall bottom
     findBodyByUserData(WorldBorder.BOTTOM)?.apply {
         removeAllFixtures()
-        addFixture(Geometry.createRectangle(width, borderThickness))
+        addFixture(Geometry.createRectangle(worldWidth, borderThickness))
         setMass(MassType.INFINITE)
         translate(0.0, halfHeight + halfBorderThickness)
     }
@@ -58,7 +59,7 @@ private fun World<Body>.updateWorldBorder() {
     // wall left
     findBodyByUserData(WorldBorder.LEFT)?.apply {
         removeAllFixtures()
-        addFixture(Geometry.createRectangle(borderThickness, height))
+        addFixture(Geometry.createRectangle(borderThickness, worldHeight))
         setMass(MassType.INFINITE)
         translate(-halfBorderThickness - halfWidth, 0.0)
     }
@@ -66,7 +67,7 @@ private fun World<Body>.updateWorldBorder() {
     // wall right
     findBodyByUserData(WorldBorder.RIGHT)?.apply {
         removeAllFixtures()
-        addFixture(Geometry.createRectangle(borderThickness, height))
+        addFixture(Geometry.createRectangle(borderThickness, worldHeight))
         setMass(MassType.INFINITE)
         translate(halfBorderThickness + halfWidth, 0.0)
     }

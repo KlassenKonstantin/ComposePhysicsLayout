@@ -20,10 +20,10 @@ import de.apuri.physicslayout.lib.joint.Joint
 import de.apuri.physicslayout.lib.layout.LayoutBodySyncManager
 import de.apuri.physicslayout.lib.layout.toWorldBodies
 import de.apuri.physicslayout.lib.shape.BodyShape
+import de.apuri.physicslayout.lib.world.Body
 import de.apuri.physicslayout.lib.world.WorldMetaData
 import de.apuri.physicslayout.lib.world.updateWorldSize
 import kotlinx.coroutines.delay
-import org.dyn4j.dynamics.Body
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
