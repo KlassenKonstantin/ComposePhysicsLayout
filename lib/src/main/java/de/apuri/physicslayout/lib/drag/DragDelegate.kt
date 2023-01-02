@@ -31,10 +31,10 @@ internal class DefaultDragDelegate(
 
             TouchType.MOVE -> {
                 getOrPutJoint(key, touchEvent, dragConfig)?.apply {
-                    target = body1.getWorldPoint(touchEvent.localOffset)
-                    frequency = dragConfig.frequency
-                    dampingRatio = dragConfig.dampingRatio
-                    maximumForce = dragConfig.maxForce
+                    target = body.getWorldPoint(touchEvent.localOffset)
+                    springFrequency = dragConfig.frequency
+                    springDampingRatio = dragConfig.dampingRatio
+                    maximumSpringForce = dragConfig.maxForce
                 }
 
             }
@@ -53,10 +53,12 @@ internal class DefaultDragDelegate(
         PinJoint(
             jointKey.body,
             jointKey.body.getWorldPoint(touchEvent.localOffset),
-            dragConfig.frequency,
-            dragConfig.dampingRatio,
-            dragConfig.maxForce
-        ).also {
+        ).apply {
+            isSpringEnabled = false
+            springFrequency = dragConfig.frequency
+            springDampingRatio = dragConfig.dampingRatio
+            maximumSpringForce = dragConfig.maxForce
+        }.also {
             world.addJoint(it)
         }
     }
