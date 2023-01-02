@@ -1,5 +1,6 @@
-package de.apuri.physicslayout.lib
+package de.apuri.physicslayout.lib.world
 
+import de.apuri.physicslayout.lib.WorldBorder
 import org.dyn4j.dynamics.Body
 import org.dyn4j.geometry.Geometry
 import org.dyn4j.geometry.MassType
@@ -11,28 +12,6 @@ internal fun World<Body>.findBodyByUserData(userData: Any): Body? {
     }
 
     return null
-}
-
-internal fun World<Body>.findBodyById(id: String) = findBodiesByUserDataType<BodyMetaData>().firstOrNull {
-    (it.userData as BodyMetaData).id == id
-}
-
-internal inline fun <reified T> World<Body>.findBodiesByUserDataType() = bodies.filter {
-    it.userData is T
-}
-
-internal fun World<Body>.removeBodiesWithIdNotIn(ids: List<String>): List<String> {
-    val removedIds = mutableListOf<String>()
-    val iterator = bodyIterator
-    while (iterator.hasNext()) {
-        val userData = iterator.next().userData
-        if (userData is BodyMetaData && !ids.contains(userData.id)) {
-            iterator.remove()
-            removedIds += userData.id
-        }
-    }
-
-    return removedIds
 }
 
 internal var World<Body>.metaData

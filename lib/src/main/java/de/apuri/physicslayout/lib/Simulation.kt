@@ -1,6 +1,5 @@
 package de.apuri.physicslayout.lib
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,19 +11,32 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.apuri.physicslayout.lib.drag.DefaultDragDelegate
+import de.apuri.physicslayout.lib.drag.DragConfig
+import de.apuri.physicslayout.lib.drag.DragDelegate
+import de.apuri.physicslayout.lib.drag.TouchEvent
+import de.apuri.physicslayout.lib.drag.toWorldTouchEvent
+import de.apuri.physicslayout.lib.joint.Joint
+import de.apuri.physicslayout.lib.layout.LayoutBodySyncManager
+import de.apuri.physicslayout.lib.layout.toWorldBodies
+import de.apuri.physicslayout.lib.shape.BodyShape
+import de.apuri.physicslayout.lib.world.WorldMetaData
+import de.apuri.physicslayout.lib.world.updateWorldSize
 import kotlinx.coroutines.delay
 import org.dyn4j.dynamics.Body
-import org.dyn4j.geometry.MassType
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
 class Simulation internal constructor(
-    private val scale: Double,
+    internal val scale: Double,
     private val world: World<Body>,
-    private val density: Density,
+    internal val density: Density,
 ) {
-    internal val transformations = mutableStateMapOf<String, Transformation>()
+    internal val transformations = mutableStateMapOf<String, LayoutTransformation>()
+
     private val dragDelegate: DragDelegate = DefaultDragDelegate(world)
+    private val bodyManager: BodyManager = BodyManager(world)
+    private val applySyncResult: ApplySyncResult = DefaultApplySyncResult(bodyManager)
 
     fun setGravity(offset: Offset) {
         world.gravity = offset.toVector2()
@@ -39,111 +51,77 @@ class Simulation internal constructor(
 
             world.update(elapsed)
 
-            world.bodies.filter {
-                it.userData is BodyMetaData
-            }.associate {
-                (it.userData as BodyMetaData).id to it.toTransformation()
-            }.also {
-                transformations.putAll(it)
-            }
+            updateTransformations()
 
             delay(1)
         }
     }
 
+    private fun updateTransformations() {
+        bodyManager.bodies.mapValues {
+            it.value.toLayoutTransformation()
+        }.also {
+            transformations.putAll(it)
+        }
+    }
+
     internal fun updateWorldSize(intSize: IntSize) {
         world.updateWorldSize(
-            intSize.width / scale,
-            intSize.height / scale,
+            width = intSize.width.toWorldSize(),
+            height = intSize.height.toWorldSize(),
         )
     }
 
-    internal fun syncBodies(layoutItems: List<LayoutItem>) {
-        removeBodiesWithIdNotIn(layoutItems.map { it.id })
-        layoutItems.forEach {
-            val bodyMetaData = it.toBodyMetaData()
-            val body = world.findBodyById(bodyMetaData.id)
-            if (body == null) {
-                createBody(bodyMetaData, it).also { newBody ->
-                    world.addBody(newBody)
-                    transformations[bodyMetaData.id] = newBody.toTransformation()
-                }
-            } else {
-                updateBody(body, bodyMetaData)
-            }
-        }
+    internal fun applySyncResult(syncResult: LayoutBodySyncManager.SyncResult) {
+        applySyncResult(
+            added = syncResult.added.toWorldBodies(),
+            removed = syncResult.removed.toWorldBodies(),
+            updated = syncResult.updated.toWorldBodies()
+        )
+
+        updateTransformations()
     }
 
     internal fun drag(bodyId: String, touchEvent: TouchEvent, dragConfig: DragConfig.Draggable) {
-        dragDelegate.drag(bodyId, touchEvent.toWorldTouchEvent(), dragConfig)
-    }
-
-    private fun createBody(
-        bodyMetaData: BodyMetaData,
-        layoutItem: LayoutItem,
-    ) = Body().apply {
-        angularDamping = 0.7
-        isAtRestDetectionEnabled = false
-        userData = bodyMetaData
-        applyFixtures(bodyMetaData)
-        setMass(if (layoutItem.isStatic) MassType.INFINITE else MassType.NORMAL)
-        translate(
-            Vector2(
-                layoutItem.initialTranslation.x / scale,
-                layoutItem.initialTranslation.y / scale
+        bodyManager.bodies[bodyId]?.let {
+            dragDelegate.drag(
+                body = it,
+                touchEvent = touchEvent.toWorldTouchEvent(),
+                dragConfig = dragConfig
             )
-        )
-        applyImpulse(layoutItem.initialImpulse.toVector2())
-    }
-
-    private fun updateBody(
-        body: Body,
-        newBodyMetaData: BodyMetaData
-    ) = body.apply {
-        val currentMetaData = userData as BodyMetaData
-        if (currentMetaData == newBodyMetaData) return@apply
-
-        userData = newBodyMetaData
-        removeAllFixtures()
-        applyFixtures(newBodyMetaData)
-        setMass(if (newBodyMetaData.isStatic) MassType.INFINITE else MassType.NORMAL)
-        updateMass()
-    }
-
-    private fun Body.applyFixtures(bodyMetaData: BodyMetaData) {
-        createFixtures(bodyMetaData, density, scale).forEach {
-            addFixture(it, 1.0, 0.2, 0.4)
         }
     }
 
-    private fun Body.toTransformation() = Transformation(
-        translationX = (transform.translationX * scale).toFloat(),
-        translationY = (transform.translationY * scale).toFloat(),
-        rotation = transform.rotation.toDegrees().toFloat(),
-    )
-
-    private fun removeBodiesWithIdNotIn(currentIds: List<String>) {
-        val removedBodyIds = world.removeBodiesWithIdNotIn(currentIds)
-        removedBodyIds.forEach {
-            transformations.remove(it)
-        }
+    fun addJoint(joint: Joint) {
+//        val a = world.findBodyById(joint.idA) ?: return
+//        val b = world.findBodyById(joint.idB) ?: return
+//
+//        val newJoint = DistanceJoint(
+//            a,
+//            b,
+//            with(a.userData as BodyMetaData) {
+//                a.getWorldPoint(Vector2(
+//                    width / 2 * (joint.anchorARel?.x?.toDouble() ?: 0.0),
+//                    height / 2 * (joint.anchorARel?.y?.toDouble() ?: 0.0),
+//                ))
+//            },
+//            with(b.userData as BodyMetaData) {
+//                b.getWorldPoint(Vector2(
+//                    width / 2 * (joint.anchorBRel?.x?.toDouble() ?: 0.0),
+//                    height / 2 * (joint.anchorBRel?.y?.toDouble() ?: 0.0),
+//                ))
+//            },
+//        ).apply {
+//            setLimits(
+//                if (joint.lowerLimit == null) currentDistance else with(density) { joint.lowerLimit.toPx() } / scale,
+//                if (joint.upperLimit == null) currentDistance else with(density) { joint.upperLimit.toPx() } / scale,
+//            )
+//
+//            setLimitsEnabled(true)
+//        }
+//
+//        world.addJoint(newJoint)
     }
-
-    private fun LayoutItem.toBodyMetaData() = BodyMetaData(
-        id = id,
-        width = width / scale,
-        height = height / scale,
-        shape = shape,
-        isStatic = isStatic
-    )
-
-    private fun Offset.toVector2() = Vector2(x.toDouble(), y.toDouble())
-    private fun Offset.toWorldVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
-    private fun TouchEvent.toWorldTouchEvent() = WorldTouchEvent(
-        pointerId = pointerId,
-        localOffset = localOffset.toWorldVector2(),
-        type = type
-    )
 }
 
 @Composable
@@ -164,41 +142,21 @@ fun rememberSimulation(
     return simulation
 }
 
-data class WorldMetaData(
-    val width: Double = 0.0,
-    val height: Double = 0.0,
-)
-
-data class BodyMetaData(
+data class WorldBody(
     val id: String,
     val width: Double,
     val height: Double,
-    val shape: RoundedCornerShape,
-    val isStatic: Boolean
-)
-
-data class LayoutItem(
-    val id: String,
-    val width: Int,
-    val height: Int,
-    val shape: RoundedCornerShape,
+    val shape: BodyShape,
     val isStatic: Boolean,
-    val initialTranslation: Offset,
-    val initialImpulse: Offset,
+    val initialTranslation: Vector2
 )
 
 internal enum class WorldBorder {
     TOP, BOTTOM, LEFT, RIGHT
 }
 
-data class WorldTouchEvent(
-    val pointerId: Long,
-    val localOffset: Vector2,
-    val type: TouchType
-)
-
 @Immutable
-internal data class Transformation(
+internal data class LayoutTransformation(
     val translationX: Float,
     val translationY: Float,
     val rotation: Float,

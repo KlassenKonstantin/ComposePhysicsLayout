@@ -1,12 +1,13 @@
-package de.apuri.physicslayout.lib
+package de.apuri.physicslayout.lib.drag
 
 import org.dyn4j.dynamics.Body
 import org.dyn4j.dynamics.joint.PinJoint
+import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
 internal interface DragDelegate {
     fun drag(
-        bodyId: String,
+        body: Body,
         touchEvent: WorldTouchEvent,
         dragConfig: DragConfig.Draggable
     )
@@ -18,11 +19,11 @@ internal class DefaultDragDelegate(
     private val joints = mutableMapOf<JointKey, PinJoint<Body>>()
 
     override fun drag(
-        bodyId: String,
+        body: Body,
         touchEvent: WorldTouchEvent,
         dragConfig: DragConfig.Draggable
     ) {
-        val key = JointKey(bodyId, touchEvent.pointerId)
+        val key = JointKey(body, touchEvent.pointerId)
         when (touchEvent.type) {
             TouchType.DOWN -> {
                 getOrPutJoint(key, touchEvent, dragConfig)
@@ -48,22 +49,26 @@ internal class DefaultDragDelegate(
         jointKey: JointKey,
         touchEvent: WorldTouchEvent,
         dragConfig: DragConfig.Draggable
-    ) = world.findBodyById(jointKey.bodyId)?.let { body ->
-        joints.getOrPut(jointKey) {
-            PinJoint(
-                body,
-                body.getWorldPoint(touchEvent.localOffset),
-                dragConfig.frequency,
-                dragConfig.dampingRatio,
-                dragConfig.maxForce
-            ).also {
-                world.addJoint(it)
-            }
+    ) = joints.getOrPut(jointKey) {
+        PinJoint(
+            jointKey.body,
+            jointKey.body.getWorldPoint(touchEvent.localOffset),
+            dragConfig.frequency,
+            dragConfig.dampingRatio,
+            dragConfig.maxForce
+        ).also {
+            world.addJoint(it)
         }
     }
 }
 
+internal data class WorldTouchEvent(
+    val pointerId: Long,
+    val localOffset: Vector2,
+    val type: TouchType
+)
+
 private data class JointKey(
-    val bodyId: String,
+    val body: Body,
     val pointerId: Long,
 )

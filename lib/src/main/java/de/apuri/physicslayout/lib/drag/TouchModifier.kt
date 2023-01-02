@@ -1,24 +1,11 @@
-package de.apuri.physicslayout.lib
+package de.apuri.physicslayout.lib.drag
 
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.forEachGesture
-import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
-
-@Immutable
-data class TouchEvent(
-    val pointerId: Long,
-    val localOffset: Offset,
-    val type: TouchType,
-)
-
-enum class TouchType {
-    DOWN, MOVE, UP
-}
 
 fun Modifier.touch(
     onTouchEvent: (TouchEvent) -> Unit

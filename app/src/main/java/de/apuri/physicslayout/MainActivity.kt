@@ -50,14 +50,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
-import de.apuri.physicslayout.lib.DragConfig
-import de.apuri.physicslayout.lib.PhysicsLayout
-import de.apuri.physicslayout.lib.PhysicsLayoutScope
+import de.apuri.physicslayout.lib.drag.DragConfig
+import de.apuri.physicslayout.lib.layout.PhysicsLayout
+import de.apuri.physicslayout.lib.layout.PhysicsLayoutScope
 import de.apuri.physicslayout.lib.rememberSimulation
 import de.apuri.physicslayout.ui.theme.PhysicsLayoutTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,10 +94,24 @@ class MainActivity : ComponentActivity() {
                     Box {
                         PhysicsLayout(
                             modifier = Modifier.systemBarsPadding(),
+                            onBodiesAdded = { allBodies, addedBodies ->
+//                                val stars = allBodies.filter { it.id.startsWith("star") }
+//                                if (stars.size > 1) {
+//                                    simulation.addJoint(
+//                                        Joint.DistanceJoint(
+//                                            stars[stars.size - 2].id,
+//                                            addedBodies.first().id,
+//                                            lowerLimit = 48.dp,
+//                                            upperLimit = 96.dp
+//                                        )
+//                                    )
+//                                }
+                            },
                             simulation = simulation
                         ) {
                             stars.forEach { starMeta ->
                                 Star(
+                                    id = starMeta.id,
                                     color = starMeta.color,
                                     offset = starMeta.initialOffset
                                 )
@@ -117,28 +130,28 @@ class MainActivity : ComponentActivity() {
                                 color = red,
                                 offset = LocalDensity.current.run { Offset(-120.dp.toPx(), 225.dp.toPx()) }
                             ) {
-                                stars.add(StarMeta(red, launchOffset))
+                                stars.add(StarMeta("star-${stars.size + 1}", red, launchOffset))
                             }
 
                             StarLauncher(
                                 color = purple,
                                 offset = LocalDensity.current.run { Offset(0f, 300.dp.toPx()) }
                             ) {
-                                stars.add(StarMeta(purple, launchOffset))
+                                stars.add(StarMeta("star-${stars.size + 1}", purple, launchOffset))
                             }
 
                             StarLauncher(
                                 color = blue,
                                 offset = LocalDensity.current.run { Offset(120.dp.toPx(), 225.dp.toPx()) }
                             ) {
-                                stars.add(StarMeta(blue, launchOffset))
+                                stars.add(StarMeta("star-${stars.size + 1}", blue, launchOffset))
                             }
 
                             StarLauncher(
                                 color = green,
                                 offset = LocalDensity.current.run { Offset(0.dp.toPx(), 150.dp.toPx()) }
                             ) {
-                                stars.add(StarMeta(green, launchOffset))
+                                stars.add(StarMeta("star-${stars.size + 1}", green, launchOffset))
                             }
                         }
                     }
@@ -275,14 +288,15 @@ fun StarCounter(color: Color, provideCount: () -> Int) {
 
 @Composable
 fun PhysicsLayoutScope.Star(
+    id: String,
     color: Color,
     offset: Offset
 ) {
     Card(
         modifier = Modifier.body(
+            id = id,
             shape = CircleShape,
             initialTranslation = Offset(offset.x, offset.y),
-            initialImpulse = Offset((Random.nextFloat() - 0.5f) * 2, (Random.nextFloat()) * 2),
             dragConfig = DragConfig.Draggable()
         ),
         shape = CircleShape,
@@ -301,6 +315,7 @@ fun PhysicsLayoutScope.Star(
 
 @Immutable
 data class StarMeta(
+    val id: String,
     val color: Color,
     val initialOffset: Offset
 )
