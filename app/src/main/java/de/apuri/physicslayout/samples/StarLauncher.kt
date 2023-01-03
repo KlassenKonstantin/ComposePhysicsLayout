@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package de.apuri.physicslayout.samples
 
 import androidx.compose.animation.AnimatedContent
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +49,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.lib.drag.DragConfig
@@ -62,6 +67,7 @@ fun StarLauncherScreen() {
         color = MaterialTheme.colorScheme.background
     ) {
         val simulation = rememberSimulation()
+        var starCounter by remember { mutableStateOf(0) }
         val stars = remember { mutableStateListOf<StarMeta>() }
 
         val redCount = remember {
@@ -107,7 +113,9 @@ fun StarLauncherScreen() {
                         id = starMeta.id,
                         color = starMeta.color,
                         offset = starMeta.initialOffset
-                    )
+                    ) { id ->
+                        stars.removeIf { it.id == id }
+                    }
                 }
 
                 StarCounterContainer(
@@ -117,34 +125,34 @@ fun StarLauncherScreen() {
                     { greenCount.value },
                 )
 
-                val launchOffset = LocalDensity.current.run { Offset(0f, -300.dp.toPx()) }
+                val launchOffset = DpOffset(0.dp, -300.dp)
 
                 StarLauncher(
                     color = red,
-                    offset = LocalDensity.current.run { Offset(-120.dp.toPx(), 225.dp.toPx()) }
+                    offset = DpOffset(-120.dp, 225.dp)
                 ) {
-                    stars.add(StarMeta("star-${stars.size + 1}", red, launchOffset))
+                    stars.add(StarMeta("star-${starCounter++}", red, launchOffset))
                 }
 
                 StarLauncher(
                     color = purple,
-                    offset = LocalDensity.current.run { Offset(0f, 300.dp.toPx()) }
+                    offset = DpOffset(0.dp, 300.dp)
                 ) {
-                    stars.add(StarMeta("star-${stars.size + 1}", purple, launchOffset))
+                    stars.add(StarMeta("star-${starCounter++}", purple, launchOffset))
                 }
 
                 StarLauncher(
                     color = blue,
-                    offset = LocalDensity.current.run { Offset(120.dp.toPx(), 225.dp.toPx()) }
+                    offset = DpOffset(120.dp, 225.dp)
                 ) {
-                    stars.add(StarMeta("star-${stars.size + 1}", blue, launchOffset))
+                    stars.add(StarMeta("star-${starCounter++}", blue, launchOffset))
                 }
 
                 StarLauncher(
                     color = green,
-                    offset = LocalDensity.current.run { Offset(0.dp.toPx(), 150.dp.toPx()) }
+                    offset = DpOffset(0.dp, 150.dp)
                 ) {
-                    stars.add(StarMeta("star-${stars.size + 1}", green, launchOffset))
+                    stars.add(StarMeta("star-${starCounter++}", green, launchOffset))
                 }
             }
         }
@@ -154,8 +162,8 @@ fun StarLauncherScreen() {
 @Composable
 fun PhysicsLayoutScope.StarLauncher(
     color: Color,
-    offset: Offset,
-    onStar: (Offset) -> Unit
+    offset: DpOffset,
+    onStar: (DpOffset) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     Card(
@@ -280,26 +288,30 @@ fun StarCounter(color: Color, provideCount: () -> Int) {
 fun PhysicsLayoutScope.Star(
     id: String,
     color: Color,
-    offset: Offset
+    offset: DpOffset,
+    onClick: (String) -> Unit
 ) {
-    Card(
-        modifier = Modifier.body(
-            id = id,
+    key(id) {
+        Card(
+            modifier = Modifier.body(
+                id = id,
+                shape = CircleShape,
+                initialTranslation = offset,
+                dragConfig = DragConfig.NotDraggable
+            ),
             shape = CircleShape,
-            initialTranslation = Offset(offset.x, offset.y),
-            dragConfig = DragConfig.Draggable()
-        ),
-        shape = CircleShape,
-        colors = CardDefaults.cardColors(containerColor = color)
-    ) {
-        Icon(
-            modifier = Modifier
-                .size(48.dp)
-                .padding(4.dp),
-            imageVector = Icons.Default.Star,
-            contentDescription = "",
-            tint = Color.White
-        )
+            colors = CardDefaults.cardColors(containerColor = color),
+            onClick = { onClick(id) }
+        ) {
+            Icon(
+                modifier = Modifier
+                    .size(48.dp)
+                    .padding(4.dp),
+                imageVector = Icons.Default.Star,
+                contentDescription = "",
+                tint = Color.White
+            )
+        }
     }
 }
 
@@ -307,7 +319,7 @@ fun PhysicsLayoutScope.Star(
 data class StarMeta(
     val id: String,
     val color: Color,
-    val initialOffset: Offset
+    val initialOffset: DpOffset
 )
 
 private val red = Color(0xFFEF5350)

@@ -16,7 +16,10 @@ import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.drag.DragDelegate
 import de.apuri.physicslayout.lib.drag.TouchEvent
 import de.apuri.physicslayout.lib.drag.toWorldTouchEvent
+import de.apuri.physicslayout.lib.joint.DefaultJointManager
 import de.apuri.physicslayout.lib.joint.Joint
+import de.apuri.physicslayout.lib.joint.JointManager
+import de.apuri.physicslayout.lib.joint.toWorldJoint
 import de.apuri.physicslayout.lib.layout.LayoutBodySyncManager
 import de.apuri.physicslayout.lib.layout.toWorldBodies
 import de.apuri.physicslayout.lib.shape.BodyShape
@@ -24,6 +27,7 @@ import de.apuri.physicslayout.lib.world.Body
 import de.apuri.physicslayout.lib.world.WorldMetaData
 import de.apuri.physicslayout.lib.world.updateWorldSize
 import kotlinx.coroutines.delay
+import org.dyn4j.dynamics.joint.RevoluteJoint
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
@@ -36,6 +40,7 @@ class Simulation internal constructor(
 
     private val dragDelegate: DragDelegate = DefaultDragDelegate(world)
     private val bodyManager: BodyManager = BodyManager(world)
+    //private val jointManager: JointManager = DefaultJointManager(bodyManager, world)
     private val applySyncResult: ApplySyncResult = DefaultApplySyncResult(bodyManager)
 
     fun setGravity(offset: Offset) {
@@ -93,6 +98,8 @@ class Simulation internal constructor(
     }
 
     fun addJoint(joint: Joint) {
+        world.addJoint(joint.toWorldJoint(bodyManager.bodies))
+        //jointManager.addJoint(joint)
 //        val a = world.findBodyById(joint.idA) ?: return
 //        val b = world.findBodyById(joint.idB) ?: return
 //
@@ -166,7 +173,7 @@ private val DEFAULT_SCALE = 64.dp
 
 private const val EARTH_GRAVITY = 9.81
 
-private val DEFAULT_WORLD = World<Body>().apply {
+private val DEFAULT_WORLD get() = World<Body>().apply {
     gravity = Vector2(0.0, EARTH_GRAVITY)
     userData = WorldMetaData()
     settings.stepFrequency = 1.0 / 90

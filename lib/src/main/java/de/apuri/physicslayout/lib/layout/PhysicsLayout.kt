@@ -12,8 +12,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.lib.Simulation
 import de.apuri.physicslayout.lib.drag.DragConfig
@@ -33,6 +35,7 @@ fun PhysicsLayout(
     content: @Composable PhysicsLayoutScope.() -> Unit,
 ) {
     val layoutBodySyncManager = remember { LayoutBodySyncManager() }
+    val density = LocalDensity.current
 
     Layout(
         modifier = modifier.onSizeChanged(simulation::updateWorldSize),
@@ -52,7 +55,7 @@ fun PhysicsLayout(
                 height = placeable.height,
                 shape = childData.shape,
                 isStatic = childData.isStatic,
-                initialTranslation = childData.initialTranslation
+                initialTranslation = density.run { Offset(childData.initialTranslation.x.toPx(), childData.initialTranslation.y.toPx()) }
             )
         }
 
@@ -91,7 +94,7 @@ private class BodyChildData(
     val id: String,
     val shape: RoundedCornerShape,
     val isStatic: Boolean,
-    val initialTranslation: Offset
+    val initialTranslation: DpOffset
 ) : ParentDataModifier {
     override fun Density.modifyParentData(parentData: Any?) = this@BodyChildData
 }
@@ -125,7 +128,7 @@ interface PhysicsLayoutScope {
          * Where this body should be placed in the layout.
          * An Offset of (0,0) is the center of the layout, not top left.
          */
-        initialTranslation: Offset = Offset.Zero,
+        initialTranslation: DpOffset = DpOffset.Zero,
 
         /**
          * Set to [DragConfig.Draggable] to enable drag support
@@ -142,7 +145,7 @@ private class PhysicsLayoutScopeInstance(
         id: String?,
         shape: RoundedCornerShape,
         isStatic: Boolean,
-        initialTranslation: Offset,
+        initialTranslation: DpOffset,
         dragConfig: DragConfig
     ) = composed {
         val bodyId = id ?: remember { UUID.randomUUID().toString() }
