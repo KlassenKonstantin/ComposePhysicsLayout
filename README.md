@@ -55,7 +55,7 @@ This would add a ball with a star in the center of the layout, which then starts
 If you need to change the gravity of the simulated world, use `Simulation.setGravity`
 
 ## Caveats, notes, missing features
-- I don't think Compose was made to display hundrets of Composables at the same time. So maybe it's not a good idea to build a particle system out of this.
+- I don't think Compose was made to display hundreds of Composables at the same time. So maybe it's not a good idea to build a particle system out of this.
 - In general, what is true for all of Compose is especially true for this Layout: **Release builds perform way better than debug builds**.
 - State is not restored on config changes 😱.
 - Currently there is no way to observe bodies / collosions / etc.
