@@ -11,23 +11,21 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.apuri.physicslayout.lib.body.BodyManager
 import de.apuri.physicslayout.lib.drag.DefaultDragDelegate
 import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.drag.DragDelegate
 import de.apuri.physicslayout.lib.drag.TouchEvent
 import de.apuri.physicslayout.lib.drag.toWorldTouchEvent
-import de.apuri.physicslayout.lib.joint.DefaultJointManager
 import de.apuri.physicslayout.lib.joint.Joint
-import de.apuri.physicslayout.lib.joint.JointManager
 import de.apuri.physicslayout.lib.joint.toWorldJoint
 import de.apuri.physicslayout.lib.layout.LayoutBodySyncManager
 import de.apuri.physicslayout.lib.layout.toWorldBodies
 import de.apuri.physicslayout.lib.shape.BodyShape
-import de.apuri.physicslayout.lib.world.Body
+import de.apuri.physicslayout.lib.body.Body
 import de.apuri.physicslayout.lib.world.WorldMetaData
 import de.apuri.physicslayout.lib.world.updateWorldSize
 import kotlinx.coroutines.delay
-import org.dyn4j.dynamics.joint.RevoluteJoint
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 

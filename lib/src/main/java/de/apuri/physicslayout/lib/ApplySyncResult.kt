@@ -1,7 +1,8 @@
 package de.apuri.physicslayout.lib
 
+import de.apuri.physicslayout.lib.body.BodyManager
 import de.apuri.physicslayout.lib.shape.createFixtures
-import de.apuri.physicslayout.lib.world.Body
+import de.apuri.physicslayout.lib.body.Body
 import org.dyn4j.geometry.MassType
 
 internal interface ApplySyncResult {

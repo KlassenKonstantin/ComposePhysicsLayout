@@ -1,6 +1,6 @@
 package de.apuri.physicslayout.lib.joint
 
-import de.apuri.physicslayout.lib.BodyManager
+import de.apuri.physicslayout.lib.body.BodyManager
 import org.dyn4j.dynamics.Body
 import org.dyn4j.world.World
 

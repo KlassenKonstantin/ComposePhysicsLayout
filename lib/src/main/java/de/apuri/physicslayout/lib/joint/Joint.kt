@@ -3,7 +3,7 @@ package de.apuri.physicslayout.lib.joint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import de.apuri.physicslayout.lib.Simulation
-import de.apuri.physicslayout.lib.world.Body
+import de.apuri.physicslayout.lib.body.Body
 import org.dyn4j.dynamics.joint.RevoluteJoint
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.dynamics.joint.Joint as LibJoint

@@ -1,4 +1,4 @@
-package de.apuri.physicslayout.lib.world
+package de.apuri.physicslayout.lib.body
 import org.dyn4j.dynamics.Body as LibBody
 
 class Body(

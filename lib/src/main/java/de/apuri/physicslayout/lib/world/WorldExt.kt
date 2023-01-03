@@ -1,6 +1,7 @@
 package de.apuri.physicslayout.lib.world
 
 import de.apuri.physicslayout.lib.WorldBorder
+import de.apuri.physicslayout.lib.body.Body
 import org.dyn4j.geometry.Geometry
 import org.dyn4j.geometry.MassType
 import org.dyn4j.world.World
