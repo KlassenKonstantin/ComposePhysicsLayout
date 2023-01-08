@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.apuri.physicslayout.lib.body.Body
 import de.apuri.physicslayout.lib.body.BodyManager
 import de.apuri.physicslayout.lib.drag.DefaultDragDelegate
 import de.apuri.physicslayout.lib.drag.DragConfig
@@ -22,10 +23,11 @@ import de.apuri.physicslayout.lib.joint.toWorldJoint
 import de.apuri.physicslayout.lib.layout.LayoutBodySyncManager
 import de.apuri.physicslayout.lib.layout.toWorldBodies
 import de.apuri.physicslayout.lib.shape.BodyShape
-import de.apuri.physicslayout.lib.body.Body
 import de.apuri.physicslayout.lib.world.WorldMetaData
 import de.apuri.physicslayout.lib.world.updateWorldSize
 import kotlinx.coroutines.delay
+import org.dyn4j.geometry.Geometry
+import org.dyn4j.geometry.MassType
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
@@ -126,6 +128,17 @@ class Simulation internal constructor(
 //        }
 //
 //        world.addJoint(newJoint)
+    }
+
+    fun addCircle(radius: Dp) {
+        val body = Body()
+        body.setMass(MassType.INFINITE)
+        val circle = Geometry.createPolygonalCircle(50, radius.toWorldSize())
+        val fixture = Geometry.createLinks(circle.vertices.reversed(), true)
+        fixture.forEach { fixture ->
+            body.addFixture(fixture)
+        }
+        world.addBody(body)
     }
 }
 

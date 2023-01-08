@@ -1,7 +1,7 @@
 package de.apuri.physicslayout.lib.layout
 
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shape
 import de.apuri.physicslayout.lib.Simulation
 import de.apuri.physicslayout.lib.WorldBody
 import de.apuri.physicslayout.lib.shape.toBodyShape
@@ -12,7 +12,7 @@ data class LayoutBody(
     val id: String,
     val width: Int,
     val height: Int,
-    val shape: RoundedCornerShape,
+    val shape: Shape,
     val isStatic: Boolean,
     val initialTranslation: Offset
 )

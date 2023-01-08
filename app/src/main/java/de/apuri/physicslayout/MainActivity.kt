@@ -24,6 +24,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.apuri.physicslayout.samples.AchievementsScreen
 import de.apuri.physicslayout.samples.RopeScreen
 import de.apuri.physicslayout.samples.StarLauncherScreen
 import de.apuri.physicslayout.ui.theme.PhysicsLayoutTheme
@@ -34,23 +35,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             PhysicsLayoutTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                val navController = rememberNavController()
+                Box(
+                    Modifier.fillMaxSize()
                 ) {
-                    val navController = rememberNavController()
-                    Box(
-                        Modifier.fillMaxSize()
+                    NavHost(
+                        modifier = Modifier,
+                        navController = navController,
+                        startDestination = "samplePicker"
                     ) {
-                        NavHost(
-                            modifier = Modifier.systemBarsPadding(),
-                            navController = navController,
-                            startDestination = "samplePicker"
-                        ) {
-                            composable("samplePicker") { SamplePicker { navController.navigate(it) } }
-                            composable("Star Launcher") { StarLauncherScreen() }
-                            composable("Rope") { RopeScreen() }
-                        }
+                        composable("samplePicker") { SamplePicker { navController.navigate(it) } }
+                        composable("Star Launcher") { StarLauncherScreen() }
+                        composable("Achievements") { AchievementsScreen() }
+                        composable("Rope") { RopeScreen() }
                     }
                 }
             }
@@ -62,11 +59,12 @@ class MainActivity : ComponentActivity() {
 fun SamplePicker(onSamplePicked: (String) -> Unit) {
     val samples = listOf(
         "Star Launcher",
-        "Rope"
+        "Rope",
+        "Achievements"
     )
 
     LazyColumn(
-
+        modifier = Modifier.systemBarsPadding()
     ) {
         items(samples) {
             SampleItem(it) { onSamplePicked(it) }

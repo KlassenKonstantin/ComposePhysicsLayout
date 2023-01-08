@@ -172,7 +172,7 @@ fun PhysicsLayoutScope.StarLauncher(
             .body(
                 shape = CircleShape,
                 isStatic = true,
-                initialTranslation = offset
+                initialTranslation = offset,
             )
             .pointerInput(Unit) {
                 detectTapGestures(
@@ -215,7 +215,7 @@ fun PhysicsLayoutScope.StarCounterContainer(
     Card(
         modifier = Modifier
             .body(
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(16.dp),
                 isStatic = dragConfig is DragConfig.NotDraggable,
                 dragConfig = dragConfig,
             )
@@ -224,7 +224,8 @@ fun PhysicsLayoutScope.StarCounterContainer(
                     awaitFirstDown()
                     dragConfig = DragConfig.Draggable()
                 }
-            }
+            },
+        shape = RoundedCornerShape(16.dp),
     ) {
         Row(
             Modifier
@@ -297,7 +298,7 @@ fun PhysicsLayoutScope.Star(
                 id = id,
                 shape = CircleShape,
                 initialTranslation = offset,
-                dragConfig = DragConfig.NotDraggable
+                dragConfig = DragConfig.Draggable()
             ),
             shape = CircleShape,
             colors = CardDefaults.cardColors(containerColor = color),

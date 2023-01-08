@@ -1,6 +1,7 @@
 package de.apuri.physicslayout.lib.layout
 
 import androidx.compose.foundation.layout.LayoutScopeMarker
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -9,6 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -32,6 +34,7 @@ fun PhysicsLayout(
     modifier: Modifier = Modifier,
     simulation: Simulation = rememberSimulation(),
     onBodiesAdded: OnBodiesAdded? = null,
+    shape: Shape = CircleShape,
     content: @Composable PhysicsLayoutScope.() -> Unit,
 ) {
     val layoutBodySyncManager = remember { LayoutBodySyncManager() }
@@ -92,7 +95,7 @@ fun interface OnBodiesAdded {
 
 private class BodyChildData(
     val id: String,
-    val shape: RoundedCornerShape,
+    val shape: Shape,
     val isStatic: Boolean,
     val initialTranslation: DpOffset
 ) : ParentDataModifier {
@@ -115,9 +118,9 @@ interface PhysicsLayoutScope {
         id: String? = null,
 
         /**
-         * Describes the outer bounds of the body. Only [RoundedCornerShape]s are supported.
+         * Describes the outer bounds of the body.
          */
-        shape: RoundedCornerShape = RoundedCornerShape(0.dp),
+        shape: Shape = RoundedCornerShape(0.dp),
 
         /**
          * Set true for unmovable bodies like walls and floors.
@@ -143,7 +146,7 @@ private class PhysicsLayoutScopeInstance(
     @Stable
     override fun Modifier.body(
         id: String?,
-        shape: RoundedCornerShape,
+        shape: Shape,
         isStatic: Boolean,
         initialTranslation: DpOffset,
         dragConfig: DragConfig

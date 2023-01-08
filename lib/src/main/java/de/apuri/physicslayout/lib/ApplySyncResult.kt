@@ -62,7 +62,7 @@ internal class DefaultApplySyncResult(
 
     private fun Body.applyFixtures(worldBody: WorldBody) {
         removeAllFixtures()
-        createFixtures(worldBody).forEach {
+        createFixtures(worldBody.shape).forEach {
             addFixture(it, 1.0, 0.2, 0.4)
         }
     }

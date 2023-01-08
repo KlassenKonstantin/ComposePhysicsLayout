@@ -22,6 +22,8 @@ fun Modifier.touch(
                         else -> TouchType.MOVE
                     }
 
+                    change.consume()
+
                     onTouchEvent(
                         TouchEvent(
                             pointerId = change.id.value,

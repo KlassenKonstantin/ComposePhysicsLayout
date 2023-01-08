@@ -1,30 +1,38 @@
 package de.apuri.physicslayout.lib.shape
 
-import de.apuri.physicslayout.lib.WorldBody
 import org.dyn4j.geometry.Convex
 import org.dyn4j.geometry.Geometry
+import org.dyn4j.geometry.Vector2
+import org.dyn4j.geometry.hull.GiftWrap
 
 internal fun createFixtures(
-    worldBody: WorldBody,
-): List<Convex> = when (worldBody.shape) {
-    is BodyShape.Circle -> listOf(Geometry.createCircle(worldBody.height / 2))
+    shape: BodyShape,
+): List<Convex> = when (shape) {
+    is BodyShape.Circle -> listOf(Geometry.createCircle(shape.radius))
     is BodyShape.Rectangle -> listOf(
         Geometry.createRectangle(
-            worldBody.width,
-            worldBody.height
+            shape.width,
+            shape.height
         )
     )
-    else -> createRoundedRectShape(worldBody)
+    is BodyShape.RoundedRectangle -> createRoundedRectShape(shape)
+    is BodyShape.Generic -> createFromVertices(shape.vertices)
+}
+
+private fun createFromVertices(vertices: List<Vector2>): List<Convex> {
+    return listOf(
+        Geometry.createPolygon(*GiftWrap().generate(vertices).toTypedArray())
+    )
 }
 
 private fun createRoundedRectShape(
-    worldBody: WorldBody
+    shape: BodyShape.RoundedRectangle
 ): List<Convex> {
     val fixtures = mutableListOf<Convex>()
-    val radius = (worldBody.shape as BodyShape.RoundedCornerRect).radius
+    val radius = shape.cornerRadius
 
-    val halfBodyWidth = worldBody.width / 2
-    val halfBodyHeight = worldBody.height / 2
+    val halfBodyWidth = shape.width / 2
+    val halfBodyHeight = shape.height / 2
 
     // Top left
     fixtures += Geometry.createCircle(radius).apply {
@@ -48,14 +56,14 @@ private fun createRoundedRectShape(
 
     // Rect A
     fixtures += Geometry.createRectangle(
-        worldBody.width - radius,
-        worldBody.height,
+        shape.width - radius,
+        shape.height,
     )
 
     // Rect B
     fixtures += Geometry.createRectangle(
-        worldBody.width,
-        worldBody.height - radius,
+        shape.width,
+        shape.height - radius,
     )
 
     return fixtures
