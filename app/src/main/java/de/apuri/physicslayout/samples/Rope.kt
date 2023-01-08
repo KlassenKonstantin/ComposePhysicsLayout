@@ -1,12 +1,10 @@
 package de.apuri.physicslayout.samples
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,7 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.lib.drag.DragConfig
-import de.apuri.physicslayout.lib.joint.Joint
+import de.apuri.physicslayout.lib.joint.RevoluteJoint
 import de.apuri.physicslayout.lib.layout.PhysicsLayout
 import de.apuri.physicslayout.lib.rememberSimulation
 
@@ -51,7 +49,7 @@ fun RopeScreen() {
                     }
 
                     simulation.addJoint(
-                        Joint.RevoluteJoint(
+                        RevoluteJoint(
                             idA = addedBodies[0].id,
                             idB = addedBodies[1].id,
                             anchorARel = Offset(0f, 0f)
@@ -60,7 +58,7 @@ fun RopeScreen() {
 
                     addedBodies.filter { it.id.startsWith("rope") }.windowed(2) { (bodyA, bodyB) ->
                         simulation.addJoint(
-                            Joint.RevoluteJoint(
+                            RevoluteJoint(
                                 idA = bodyA.id,
                                 idB = bodyB.id,
                                 anchorARel = Offset(0f, 1f)
