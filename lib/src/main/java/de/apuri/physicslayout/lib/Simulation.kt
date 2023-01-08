@@ -160,7 +160,7 @@ fun rememberSimulation(
     return simulation
 }
 
-data class WorldBody(
+internal data class WorldBody(
     val id: String,
     val width: Double,
     val height: Double,

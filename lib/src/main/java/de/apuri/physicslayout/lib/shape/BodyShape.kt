@@ -20,7 +20,7 @@ import org.dyn4j.geometry.Vector2
 
 private const val STEPS = 100
 
-sealed class BodyShape {
+internal sealed class BodyShape {
     data class Circle(
         val radius: Double
     ) : BodyShape()
