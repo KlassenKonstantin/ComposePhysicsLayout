@@ -72,6 +72,9 @@ private fun LayoutBody.toGenericShape() = BodyShape.Generic(
 private fun Shape.toPoints(size: Size, layoutDirection: LayoutDirection, density: Density, steps: Int): List<Offset> {
     val outline = createOutline(size, layoutDirection, density)
     val path = Path().apply { addOutline(outline) }
+    if (!path.isConvex) {
+        throw IllegalArgumentException("Only convex shapes are supported")
+    }
     val pm = PathMeasure().apply { setPath(path.asAndroidPath(), true) }
     val stepSize = pm.length / steps
     val coordinates = FloatArray(2)
