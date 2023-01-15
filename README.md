@@ -1,7 +1,7 @@
 # Physics Layout
-![Maven Central](https://img.shields.io/maven-central/v/io.github.klassenkonstantin/physics-layout?style=flat-square&versionPrefix=0.2)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.klassenkonstantin/physics-layout?style=flat-square&versionPrefix=0.3)
 
-This library offsers a [dyn4j](https://www.dyn4j.org) wrapper for [Jetpack Compose](https://developer.android.com/jetpack/compose).
+This library offers a [dyn4j](https://www.dyn4j.org) wrapper for [Jetpack Compose](https://developer.android.com/jetpack/compose).
 
 ## 🚧 Experimental 🚧
 Before reaching version 1.0, this library is considered experimental, which means that there is no guaranteed backwards compatibility between versions. Signatures, interfaces, names, etc. may and will most likely change.
@@ -16,16 +16,43 @@ dependencies {
 }
 ```
 
-## How to use
-To get started, create a `PhysicsLayout` and fill it with Composables. Every root level Composable in `PhysicsLayout` must use the `body` modifier to tell the simulation how the Composable should behave in the physics world. The `body` modifier can be configured with following parameters:
+# How to use
+To get started, create a `PhysicsLayout` and fill it with Composables. Every root level Composable in `PhysicsLayout` must use the `body` modifier to tell the simulation how the Composable should behave in the physics world.
+
+## PhysicsLayout
+```kotlin
+@Composable
+fun PhysicsLayout(
+    modifier: Modifier = Modifier,
+    simulation: Simulation = rememberSimulation(),
+    onBodiesAdded: OnBodiesAdded? = null,
+    shape: Shape? = RectangleShape,
+    content: @Composable PhysicsLayoutScope.() -> Unit,
+)
+```
+- `simulation`: Does the mapping between layout and physics engine
+- `onBodiesAdded`: Called when the layout bodies composed in this layout are ready to be used
+- `shape`: The shape of the outer border of the `PhysicsLayout`
+
+## body modifier
+```kotlin
+fun Modifier.body(
+    id: String? = null,
+    shape: Shape = RectangleShape,
+    isStatic: Boolean = false,
+    initialTranslation: DpOffset = DpOffset.Zero,
+    dragConfig: DragConfig = DragConfig.NotDraggable
+): Modifier
+```
 - `id`: The id the body should have in the simulation. Useful for operations that act directly on bodies (not yet supported).
-- `shape`: Describes the outer bounds of the body. Only [RoundedCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/RoundedCornerShape)s are supported.
+- `shape`: Describes the outer bounds of the body. Supported shapes are:
+  - [RectangleShape](https://developer.android.com/reference/kotlin/androidx/compose/ui/graphics/package-summary#RectangleShape())
+  - [CircleShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/package-summary#CircleShape())
+  - [RoundedCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/RoundedCornerShape)
+  - [CutCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/CutCornerShape)
 - `isStatic`: Set true for unmovable bodies like walls and floors.
 - `initialTranslation`: Where this body should be placed in the layout. An `Offset` of (0,0) is the center of the layout, not top left.
-- `initialImpulse`: The impulse that should be applied to this body once it's placed into the world
 - `dragConfig`: Set to `DragConfig.Draggable` to enable drag support
-
-`PhysicsLayout` takes a `Simulation` as a parameter. Use `rememberSimulation` to create a Simulation. `rememberSimulation` is used as the default argument for `simulation`.
 
 ### Example usage
 ```kotlin
