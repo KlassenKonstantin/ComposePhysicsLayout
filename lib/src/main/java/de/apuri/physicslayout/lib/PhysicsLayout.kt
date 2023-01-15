@@ -38,7 +38,7 @@ fun PhysicsLayout(
     modifier: Modifier = Modifier,
     simulation: Simulation = rememberSimulation(),
     onBodiesAdded: OnBodiesAdded? = null,
-    shape: Shape? = CircleShape,
+    shape: Shape? = RectangleShape,
     content: @Composable PhysicsLayoutScope.() -> Unit,
 ) {
     val layoutBodySyncManager = remember { LayoutBodySyncManager() }
