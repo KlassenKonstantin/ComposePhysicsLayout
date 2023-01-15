@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
@@ -192,3 +193,10 @@ private fun PhysicsLayoutScope.Ball(shape: Shape, ball: BallMeta) {
         }
     }
 }
+
+internal data class BallMeta(
+    val borderColors: List<Color>,
+    val containerColors: List<Color>,
+    val icon: ImageVector? = null,
+    val iconRes: Int? = null
+)

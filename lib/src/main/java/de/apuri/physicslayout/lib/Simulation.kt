@@ -14,20 +14,18 @@ import de.apuri.physicslayout.lib.body.ApplyBodySyncResult
 import de.apuri.physicslayout.lib.body.Body
 import de.apuri.physicslayout.lib.body.BodyManager
 import de.apuri.physicslayout.lib.body.DefaultApplyBodySyncResult
+import de.apuri.physicslayout.lib.body.LayoutBodySyncManager
 import de.apuri.physicslayout.lib.border.ApplyNewWorldBorder
 import de.apuri.physicslayout.lib.border.DefaultApplyNewWorldBorder
+import de.apuri.physicslayout.lib.border.LayoutShape
+import de.apuri.physicslayout.lib.border.toWorldShape
 import de.apuri.physicslayout.lib.drag.DefaultDragDelegate
 import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.drag.DragDelegate
 import de.apuri.physicslayout.lib.drag.TouchEvent
 import de.apuri.physicslayout.lib.drag.toWorldTouchEvent
-import de.apuri.physicslayout.lib.joint.Joint
-import de.apuri.physicslayout.lib.joint.toWorldJoint
-import de.apuri.physicslayout.lib.body.LayoutBodySyncManager
-import de.apuri.physicslayout.lib.border.LayoutShape
-import de.apuri.physicslayout.lib.shape.toWorldBodies
-import de.apuri.physicslayout.lib.border.toWorldShape
 import de.apuri.physicslayout.lib.shape.WorldShape
+import de.apuri.physicslayout.lib.shape.toWorldBodies
 import kotlinx.coroutines.delay
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
@@ -41,7 +39,6 @@ class Simulation internal constructor(
 
     private val dragDelegate: DragDelegate = DefaultDragDelegate(world)
     private val bodyManager: BodyManager = BodyManager(world)
-    //private val jointManager: JointManager = DefaultJointManager(bodyManager, world)
     private val applyBodySyncResult: ApplyBodySyncResult = DefaultApplyBodySyncResult(bodyManager)
     private val applyNewWorldBorder: ApplyNewWorldBorder = DefaultApplyNewWorldBorder(world)
 
@@ -95,50 +92,6 @@ class Simulation internal constructor(
             )
         }
     }
-
-    fun addJoint(joint: Joint) {
-        world.addJoint(joint.toWorldJoint(bodyManager.bodies))
-        //jointManager.addJoint(joint)
-//        val a = world.findBodyById(joint.idA) ?: return
-//        val b = world.findBodyById(joint.idB) ?: return
-//
-//        val newJoint = DistanceJoint(
-//            a,
-//            b,
-//            with(a.userData as BodyMetaData) {
-//                a.getWorldPoint(Vector2(
-//                    width / 2 * (joint.anchorARel?.x?.toDouble() ?: 0.0),
-//                    height / 2 * (joint.anchorARel?.y?.toDouble() ?: 0.0),
-//                ))
-//            },
-//            with(b.userData as BodyMetaData) {
-//                b.getWorldPoint(Vector2(
-//                    width / 2 * (joint.anchorBRel?.x?.toDouble() ?: 0.0),
-//                    height / 2 * (joint.anchorBRel?.y?.toDouble() ?: 0.0),
-//                ))
-//            },
-//        ).apply {
-//            setLimits(
-//                if (joint.lowerLimit == null) currentDistance else with(density) { joint.lowerLimit.toPx() } / scale,
-//                if (joint.upperLimit == null) currentDistance else with(density) { joint.upperLimit.toPx() } / scale,
-//            )
-//
-//            setLimitsEnabled(true)
-//        }
-//
-//        world.addJoint(newJoint)
-    }
-
-//    fun addCircle(radius: Dp) {
-//        val body = Body()
-//        body.setMass(MassType.INFINITE)
-//        val circle = Geometry.createPolygonalCircle(50, radius.toWorldSize())
-//        val fixture = Geometry.createLinks(circle.vertices.reversed(), true)
-//        fixture.forEach { fixture ->
-//            body.addFixture(fixture)
-//        }
-//        world.addBody(body)
-//    }
 }
 
 @Composable

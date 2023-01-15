@@ -18,8 +18,6 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.apuri.physicslayout.samples.AchievementsScreen
-import de.apuri.physicslayout.samples.RopeScreen
 import de.apuri.physicslayout.samples.ShapesScreen
 import de.apuri.physicslayout.samples.StarLauncherScreen
 import de.apuri.physicslayout.ui.theme.PhysicsLayoutTheme
@@ -41,8 +39,6 @@ class MainActivity : ComponentActivity() {
                     ) {
                         composable("samplePicker") { SamplePicker { navController.navigate(it) } }
                         composable("Star Launcher") { StarLauncherScreen() }
-                        composable("Achievements") { AchievementsScreen() }
-                        composable("Rope") { RopeScreen() }
                         composable("Shapes") { ShapesScreen() }
                     }
                 }
@@ -55,8 +51,6 @@ class MainActivity : ComponentActivity() {
 fun SamplePicker(onSamplePicked: (String) -> Unit) {
     val samples = listOf(
         "Star Launcher",
-        "Rope",
-        "Achievements",
         "Shapes"
     )
 
