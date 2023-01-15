@@ -9,10 +9,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import de.apuri.physicslayout.lib.body.ApplyBodySyncResult
 import de.apuri.physicslayout.lib.body.Body
 import de.apuri.physicslayout.lib.body.BodyManager
+import de.apuri.physicslayout.lib.body.DefaultApplyBodySyncResult
+import de.apuri.physicslayout.lib.border.ApplyNewWorldBorder
+import de.apuri.physicslayout.lib.border.DefaultApplyNewWorldBorder
 import de.apuri.physicslayout.lib.drag.DefaultDragDelegate
 import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.drag.DragDelegate
@@ -20,14 +23,12 @@ import de.apuri.physicslayout.lib.drag.TouchEvent
 import de.apuri.physicslayout.lib.drag.toWorldTouchEvent
 import de.apuri.physicslayout.lib.joint.Joint
 import de.apuri.physicslayout.lib.joint.toWorldJoint
-import de.apuri.physicslayout.lib.layout.LayoutBodySyncManager
-import de.apuri.physicslayout.lib.layout.toWorldBodies
-import de.apuri.physicslayout.lib.shape.BodyShape
-import de.apuri.physicslayout.lib.world.WorldMetaData
-import de.apuri.physicslayout.lib.world.updateWorldSize
+import de.apuri.physicslayout.lib.body.LayoutBodySyncManager
+import de.apuri.physicslayout.lib.border.LayoutShape
+import de.apuri.physicslayout.lib.shape.toWorldBodies
+import de.apuri.physicslayout.lib.border.toWorldShape
+import de.apuri.physicslayout.lib.shape.WorldShape
 import kotlinx.coroutines.delay
-import org.dyn4j.geometry.Geometry
-import org.dyn4j.geometry.MassType
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
@@ -41,7 +42,8 @@ class Simulation internal constructor(
     private val dragDelegate: DragDelegate = DefaultDragDelegate(world)
     private val bodyManager: BodyManager = BodyManager(world)
     //private val jointManager: JointManager = DefaultJointManager(bodyManager, world)
-    private val applySyncResult: ApplySyncResult = DefaultApplySyncResult(bodyManager)
+    private val applyBodySyncResult: ApplyBodySyncResult = DefaultApplyBodySyncResult(bodyManager)
+    private val applyNewWorldBorder: ApplyNewWorldBorder = DefaultApplyNewWorldBorder(world)
 
     fun setGravity(offset: Offset) {
         world.gravity = offset.toVector2()
@@ -70,21 +72,18 @@ class Simulation internal constructor(
         }
     }
 
-    internal fun updateWorldSize(intSize: IntSize) {
-        world.updateWorldSize(
-            width = intSize.width.toWorldSize(),
-            height = intSize.height.toWorldSize(),
-        )
-    }
-
-    internal fun applySyncResult(syncResult: LayoutBodySyncManager.SyncResult) {
-        applySyncResult(
+    internal fun applyBodySyncResult(syncResult: LayoutBodySyncManager.SyncResult) {
+        applyBodySyncResult(
             added = syncResult.added.toWorldBodies(),
             removed = syncResult.removed.toWorldBodies(),
             updated = syncResult.updated.toWorldBodies()
         )
 
         updateTransformations()
+    }
+
+    internal fun applyNewWorldBorder(layoutShape: LayoutShape) {
+        applyNewWorldBorder(layoutShape.toWorldShape())
     }
 
     internal fun drag(bodyId: String, touchEvent: TouchEvent, dragConfig: DragConfig.Draggable) {
@@ -130,16 +129,16 @@ class Simulation internal constructor(
 //        world.addJoint(newJoint)
     }
 
-    fun addCircle(radius: Dp) {
-        val body = Body()
-        body.setMass(MassType.INFINITE)
-        val circle = Geometry.createPolygonalCircle(50, radius.toWorldSize())
-        val fixture = Geometry.createLinks(circle.vertices.reversed(), true)
-        fixture.forEach { fixture ->
-            body.addFixture(fixture)
-        }
-        world.addBody(body)
-    }
+//    fun addCircle(radius: Dp) {
+//        val body = Body()
+//        body.setMass(MassType.INFINITE)
+//        val circle = Geometry.createPolygonalCircle(50, radius.toWorldSize())
+//        val fixture = Geometry.createLinks(circle.vertices.reversed(), true)
+//        fixture.forEach { fixture ->
+//            body.addFixture(fixture)
+//        }
+//        world.addBody(body)
+//    }
 }
 
 @Composable
@@ -164,14 +163,10 @@ internal data class WorldBody(
     val id: String,
     val width: Double,
     val height: Double,
-    val shape: BodyShape,
+    val shape: WorldShape,
     val isStatic: Boolean,
     val initialTranslation: Vector2
 )
-
-internal enum class WorldBorder {
-    TOP, BOTTOM, LEFT, RIGHT
-}
 
 @Immutable
 internal data class LayoutTransformation(
@@ -186,10 +181,5 @@ private const val EARTH_GRAVITY = 9.81
 
 private val DEFAULT_WORLD get() = World<Body>().apply {
     gravity = Vector2(0.0, EARTH_GRAVITY)
-    userData = WorldMetaData()
     settings.stepFrequency = 1.0 / 90
-    addBody(Body().apply { userData = WorldBorder.TOP })
-    addBody(Body().apply { userData = WorldBorder.BOTTOM })
-    addBody(Body().apply { userData = WorldBorder.LEFT })
-    addBody(Body().apply { userData = WorldBorder.RIGHT })
 }

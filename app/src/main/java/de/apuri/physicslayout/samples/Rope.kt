@@ -26,7 +26,7 @@ import androidx.compose.ui.zIndex
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.joint.RevoluteJoint
-import de.apuri.physicslayout.lib.layout.PhysicsLayout
+import de.apuri.physicslayout.lib.PhysicsLayout
 import de.apuri.physicslayout.lib.rememberSimulation
 
 @Composable

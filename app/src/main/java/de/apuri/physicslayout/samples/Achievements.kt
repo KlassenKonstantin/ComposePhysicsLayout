@@ -9,7 +9,6 @@ import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -34,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
@@ -51,11 +51,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -67,7 +63,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
@@ -76,21 +71,14 @@ import androidx.compose.ui.unit.sp
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.R
 import de.apuri.physicslayout.lib.drag.DragConfig
-import de.apuri.physicslayout.lib.layout.PhysicsLayout
-import de.apuri.physicslayout.lib.layout.PhysicsLayoutScope
+import de.apuri.physicslayout.lib.PhysicsLayout
+import de.apuri.physicslayout.lib.PhysicsLayoutScope
 import de.apuri.physicslayout.lib.rememberSimulation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.consume
-import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import java.text.NumberFormat
-import java.util.LinkedList
 import java.util.Locale
 
 
@@ -257,9 +245,6 @@ fun AchievementsScreen() {
                         contentAlignment = Alignment.Center
                     ) {
                         val simulation = rememberSimulation()
-                        LaunchedEffect(key1 = simulation) {
-                            simulation.addCircle(maxWidth / 2)
-                        }
 
                         GravitySensor {
                             simulation.setGravity(it.copy(x = -it.x).times(3f))
@@ -284,15 +269,16 @@ fun AchievementsScreen() {
                             }
                         }
 
+                        val shape = CutCornerShape(10)
                         PhysicsLayout(
                             modifier = Modifier
-                                .border(1.dp, Brush.verticalGradient(0.2f to Color.Transparent, 1f to Color(0xff71717A)), CircleShape)
-                                .clip(CircleShape),
+                                .border(1.dp, Brush.verticalGradient(0.2f to Color.Transparent, 1f to Color(0xff71717A)), shape)
+                                .clip(shape),
                             simulation = simulation,
+                            shape = shape
                         ) {
                             achievements.values.filter { it.progress.targetValue >= 1f }.forEachIndexed { index, achievement ->
                                 if (enterOrchestrator.state.containsKey(achievement.id)) {
-                                    Log.d("asdf", "check ${achievement.id}")
                                     key(achievement.id) {
                                         Ball(ball = achievement.ball, enterOrchestrator.state[achievement.id]!!.value)
                                     }
@@ -343,14 +329,15 @@ fun AchievementsScreen() {
 
 @Composable
 private fun PhysicsLayoutScope.Ball(ball: BallMeta, alpha: Float) {
+    val shape = CutCornerShape(16.dp)
     Box(
         modifier = Modifier
             .size(48.dp)
             .alpha(alpha)
-            .background(Brush.verticalGradient(ball.containerColors), CircleShape)
-            .border(BorderStroke(4.dp, Brush.verticalGradient(ball.borderColors)), CircleShape)
+            .background(Brush.verticalGradient(ball.containerColors), shape)
+            .border(BorderStroke(4.dp, Brush.verticalGradient(ball.borderColors)), shape)
             .body(
-                shape = CircleShape,
+                shape = shape,
                 dragConfig = DragConfig.Draggable(
                     frequency = 1.0,
                     maxForce = 10.0
@@ -404,7 +391,7 @@ private fun LazyItemScope.AchievementProgressTracker(achievement: Achievement, a
             LinearProgressIndicator(modifier = Modifier.padding(vertical = 8.dp), progress = achievement.progress.value)
         },
         trailingContent = {
-            val format = NumberFormat.getPercentInstance(Locale.US);
+            val format = NumberFormat.getPercentInstance(Locale.US)
             Text(text = format.format(minOf(achievement.progress.value, achievement.progress.targetValue)))
         }
     )
@@ -417,7 +404,7 @@ private data class Achievement(
     val ball: BallMeta
 )
 
-private data class BallMeta(
+internal data class BallMeta(
     val borderColors: List<Color>,
     val containerColors: List<Color>,
     val icon: ImageVector? = null,
@@ -433,15 +420,12 @@ private class EnterOrchestrator(
     init {
         scope.launch {
             for (id in channel) {
-                Log.d("asdf", "Add $id")
                 val animatable = Animatable(0f)
                 state[id] = animatable
                 launch {
                     animatable.animateTo(1f, tween(300))
                 }
                 delay(500)
-                Log.d("asdf", "Done $id")
-                Log.d("asdf", "State = ${state}")
             }
         }
     }

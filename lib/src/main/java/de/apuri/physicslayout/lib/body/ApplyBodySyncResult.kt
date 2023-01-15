@@ -1,11 +1,9 @@
-package de.apuri.physicslayout.lib
+package de.apuri.physicslayout.lib.body
 
-import de.apuri.physicslayout.lib.body.BodyManager
-import de.apuri.physicslayout.lib.shape.createFixtures
-import de.apuri.physicslayout.lib.body.Body
+import de.apuri.physicslayout.lib.WorldBody
 import org.dyn4j.geometry.MassType
 
-internal interface ApplySyncResult {
+internal fun interface ApplyBodySyncResult {
     operator fun invoke(
         added: List<WorldBody>,
         removed: List<WorldBody>,
@@ -13,9 +11,9 @@ internal interface ApplySyncResult {
     )
 }
 
-internal class DefaultApplySyncResult(
+internal class DefaultApplyBodySyncResult(
     private val bodyManager: BodyManager,
-) : ApplySyncResult {
+) : ApplyBodySyncResult {
     override fun invoke(
         added: List<WorldBody>,
         removed: List<WorldBody>,

@@ -1,4 +1,4 @@
-package de.apuri.physicslayout.lib.layout
+package de.apuri.physicslayout.lib.body
 
 internal class LayoutBodySyncManager {
     private val cachedLayoutBodies = mutableListOf<LayoutBody>()

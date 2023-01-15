@@ -1,28 +1,32 @@
-package de.apuri.physicslayout.lib.layout
+@file:OptIn(ExperimentalComposeUiApi::class)
+
+package de.apuri.physicslayout.lib
 
 import androidx.compose.foundation.layout.LayoutScopeMarker
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.ParentDataModifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
-import de.apuri.physicslayout.lib.Simulation
+import de.apuri.physicslayout.lib.body.LayoutBody
+import de.apuri.physicslayout.lib.body.LayoutBodySyncManager
+import de.apuri.physicslayout.lib.border.LayoutShapeSyncManager
 import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.drag.touch
-import de.apuri.physicslayout.lib.rememberSimulation
+import de.apuri.physicslayout.lib.shape.isSupported
 import java.util.UUID
 
 /**
@@ -34,14 +38,26 @@ fun PhysicsLayout(
     modifier: Modifier = Modifier,
     simulation: Simulation = rememberSimulation(),
     onBodiesAdded: OnBodiesAdded? = null,
-    shape: Shape = CircleShape,
+    shape: Shape? = CircleShape,
     content: @Composable PhysicsLayoutScope.() -> Unit,
 ) {
     val layoutBodySyncManager = remember { LayoutBodySyncManager() }
+    val layoutShapeSyncManager = remember { LayoutShapeSyncManager() }
+
     val density = LocalDensity.current
 
+    fun updateBorder(layoutCoordinates: LayoutCoordinates) {
+        layoutShapeSyncManager.updateLayoutShape(
+            layoutWidth = layoutCoordinates.size.width,
+            layoutHeight = layoutCoordinates.size.height,
+            shape = shape
+        )?.let { updatedLayoutShape ->
+            simulation.applyNewWorldBorder(updatedLayoutShape)
+        }
+    }
+
     Layout(
-        modifier = modifier.onSizeChanged(simulation::updateWorldSize),
+        modifier = modifier,
         content = { remember(simulation) { PhysicsLayoutScopeInstance(simulation) }.content() }
     ) { measurables, constraints: Constraints ->
         check(measurables.none { it.parentData as? BodyChildData == null } ) {
@@ -63,14 +79,16 @@ fun PhysicsLayout(
         }
 
         layoutBodySyncManager.syncBodies(layoutBodies).also { syncResult ->
-            simulation.applySyncResult(syncResult)
+            simulation.applyBodySyncResult(syncResult)
             onBodiesAdded?.invoke(layoutBodies, syncResult.added)
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
+            coordinates?.let {
+                updateBorder(it)
+            }
             val halfWidth = constraints.maxWidth / 2
             val halfHeight = constraints.maxHeight / 2
-
             placeables.forEach { placeable ->
                 val childData = placeable.parentData as BodyChildData
 
@@ -120,7 +138,7 @@ interface PhysicsLayoutScope {
         /**
          * Describes the outer bounds of the body.
          */
-        shape: Shape = RoundedCornerShape(0.dp),
+        shape: Shape = RectangleShape,
 
         /**
          * Set true for unmovable bodies like walls and floors.
@@ -152,6 +170,11 @@ private class PhysicsLayoutScopeInstance(
         dragConfig: DragConfig
     ) = composed {
         val bodyId = id ?: remember { UUID.randomUUID().toString() }
+
+        check(shape.isSupported()) {
+            "Shape not supported"
+        }
+
         BodyChildData(
             id = bodyId,
             shape = shape,

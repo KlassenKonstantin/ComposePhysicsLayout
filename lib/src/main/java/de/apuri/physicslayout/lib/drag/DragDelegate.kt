@@ -30,7 +30,7 @@ internal class DefaultDragDelegate(
             }
 
             TouchType.MOVE -> {
-                getOrPutJoint(key, touchEvent, dragConfig)?.apply {
+                getOrPutJoint(key, touchEvent, dragConfig).apply {
                     target = body.getWorldPoint(touchEvent.localOffset)
                     springFrequency = dragConfig.frequency
                     springDampingRatio = dragConfig.dampingRatio
@@ -54,7 +54,7 @@ internal class DefaultDragDelegate(
             jointKey.body,
             jointKey.body.getWorldPoint(touchEvent.localOffset),
         ).apply {
-            isSpringEnabled = false
+            isSpringEnabled = true
             springFrequency = dragConfig.frequency
             springDampingRatio = dragConfig.dampingRatio
             maximumSpringForce = dragConfig.maxForce

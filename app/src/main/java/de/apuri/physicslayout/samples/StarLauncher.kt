@@ -45,18 +45,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.lib.drag.DragConfig
-import de.apuri.physicslayout.lib.layout.PhysicsLayout
-import de.apuri.physicslayout.lib.layout.PhysicsLayoutScope
+import de.apuri.physicslayout.lib.PhysicsLayout
+import de.apuri.physicslayout.lib.PhysicsLayoutScope
 import de.apuri.physicslayout.lib.rememberSimulation
-import de.apuri.physicslayout.ui.theme.PhysicsLayoutTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
