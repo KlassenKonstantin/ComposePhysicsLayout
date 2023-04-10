@@ -18,6 +18,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.apuri.physicslayout.samples.FlyingTabsScreen
 import de.apuri.physicslayout.samples.ShapesScreen
 import de.apuri.physicslayout.samples.StarLauncherScreen
 import de.apuri.physicslayout.ui.theme.PhysicsLayoutTheme
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
                         composable("samplePicker") { SamplePicker { navController.navigate(it) } }
                         composable("Star Launcher") { StarLauncherScreen() }
                         composable("Shapes") { ShapesScreen() }
+                        composable("Flying Tabs") { FlyingTabsScreen() }
                     }
                 }
             }
@@ -51,7 +53,8 @@ class MainActivity : ComponentActivity() {
 fun SamplePicker(onSamplePicked: (String) -> Unit) {
     val samples = listOf(
         "Star Launcher",
-        "Shapes"
+        "Shapes",
+        "Flying Tabs"
     )
 
     LazyColumn(
@@ -63,11 +66,10 @@ fun SamplePicker(onSamplePicked: (String) -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SampleItem(id: String, onSampleItemClicked: () -> Unit) {
     ListItem(
-        headlineText = { Text(id) },
+        headlineContent = { Text(id) },
         modifier = Modifier.clickable {
             onSampleItemClicked()
         }
