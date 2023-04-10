@@ -1,8 +1,10 @@
 package de.apuri.physicslayout.lib.drag
 
-import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
@@ -11,26 +13,35 @@ fun Modifier.touch(
     onTouchEvent: (TouchEvent) -> Unit
 ) = pointerInput(Unit) {
     val center = Offset(size.width / 2f, size.height / 2f)
-    forEachGesture {
-        awaitPointerEventScope {
+    awaitEachGesture {
+        val changeAfterSlop = awaitTouchSlopOrCancellation(
+            awaitPointerEvent().changes.first().id,
+        ) { change, _ ->
+            change.consume()
+        }
+
+        fun handlePointerInputChange(change: PointerInputChange) {
+            val type = when {
+                change.changedToDown() -> TouchType.DOWN
+                change.changedToUp() -> TouchType.UP
+                else -> TouchType.MOVE
+            }
+
+            onTouchEvent(
+                TouchEvent(
+                    pointerId = change.id.value,
+                    localOffset = change.position - center,
+                    type = type,
+                )
+            )
+        }
+
+        if (changeAfterSlop != null) {
+            handlePointerInputChange(changeAfterSlop)
             do {
                 val event = awaitPointerEvent()
                 event.changes.forEach { change ->
-                    val type = when {
-                        change.changedToDown() -> TouchType.DOWN
-                        change.changedToUp() -> TouchType.UP
-                        else -> TouchType.MOVE
-                    }
-
-                    change.consume()
-
-                    onTouchEvent(
-                        TouchEvent(
-                            pointerId = change.id.value,
-                            localOffset = change.position - center,
-                            type = type,
-                        )
-                    )
+                    handlePointerInputChange(change)
                 }
             } while (!event.changes.all { it.changedToUp() })
         }
