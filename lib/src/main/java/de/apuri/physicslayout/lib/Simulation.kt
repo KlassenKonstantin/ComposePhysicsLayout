@@ -6,6 +6,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -15,7 +17,8 @@ import de.apuri.physicslayout.lib.body.Body
 import de.apuri.physicslayout.lib.body.BodyManager
 import de.apuri.physicslayout.lib.body.DefaultApplyBodySyncResult
 import de.apuri.physicslayout.lib.body.LayoutBodySyncManager
-import de.apuri.physicslayout.lib.border.ApplyNewWorldBorder
+import de.apuri.physicslayout.lib.body.createFixtures
+import de.apuri.physicslayout.lib.body.toWorldShape
 import de.apuri.physicslayout.lib.border.DefaultApplyNewWorldBorder
 import de.apuri.physicslayout.lib.border.LayoutShape
 import de.apuri.physicslayout.lib.border.toWorldShape
@@ -24,9 +27,11 @@ import de.apuri.physicslayout.lib.drag.DragConfig
 import de.apuri.physicslayout.lib.drag.DragDelegate
 import de.apuri.physicslayout.lib.drag.TouchEvent
 import de.apuri.physicslayout.lib.drag.toWorldTouchEvent
+import de.apuri.physicslayout.lib.shape.SizeAwareShape
 import de.apuri.physicslayout.lib.shape.WorldShape
 import de.apuri.physicslayout.lib.shape.toWorldBodies
 import kotlinx.coroutines.delay
+import org.dyn4j.geometry.MassType
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
@@ -40,7 +45,10 @@ class Simulation internal constructor(
     private val dragDelegate: DragDelegate = DefaultDragDelegate(world)
     private val bodyManager: BodyManager = BodyManager(world)
     private val applyBodySyncResult: ApplyBodySyncResult = DefaultApplyBodySyncResult(bodyManager)
-    private val applyNewWorldBorder: ApplyNewWorldBorder = DefaultApplyNewWorldBorder(world)
+    private val applyNewWorldBorder: DefaultApplyNewWorldBorder = DefaultApplyNewWorldBorder(world)
+
+    private var worldWidth = 0.0
+    private var worldHeight = 0.0
 
     fun setGravity(offset: Offset) {
         world.gravity = offset.toVector2()
@@ -81,6 +89,8 @@ class Simulation internal constructor(
 
     internal fun applyNewWorldBorder(layoutShape: LayoutShape) {
         applyNewWorldBorder(layoutShape.toWorldShape())
+        worldWidth = layoutShape.width.toWorldSize()
+        worldHeight = layoutShape.height.toWorldSize()
     }
 
     internal fun drag(bodyId: String, touchEvent: TouchEvent, dragConfig: DragConfig.Draggable) {
@@ -91,6 +101,43 @@ class Simulation internal constructor(
                 dragConfig = dragConfig
             )
         }
+    }
+
+    fun addBody(id: String, sizeAwareShape: SizeAwareShape, layoutCoordinates: LayoutCoordinates) {
+        val worldShape = sizeAwareShape.toWorldShape()
+
+        val bodyWidth = sizeAwareShape.width.toWorldSize()
+        val bodyHeight = sizeAwareShape.height.toWorldSize()
+
+        val halfWorldWidth = worldWidth / 2
+        val halfWorldHeight = worldHeight / 2
+
+        val lx = layoutCoordinates.positionInParent().x
+        val lxe = layoutCoordinates.parentCoordinates?.size?.width ?: 1
+
+        val ly = layoutCoordinates.positionInParent().y
+        val lye = layoutCoordinates.parentCoordinates?.size?.height ?: 1
+
+        val worldX = (lx * halfWorldWidth - lx * -halfWorldWidth + lxe * -halfWorldWidth) / lxe + bodyWidth / 2
+        val worldY = (ly * halfWorldHeight - ly * -halfWorldHeight + lye * -halfWorldHeight) / lye + bodyHeight / 2
+
+        val body = Body(
+            bodyWidth,
+            bodyHeight,
+            worldX,
+            worldY
+        ).apply {
+            angularDamping = 0.7
+            isAtRestDetectionEnabled = false
+            createFixtures(worldShape).forEach {
+                addFixture(it, 1.0, 0.2, 0.4)
+            }
+            setMass(MassType.NORMAL)
+
+            translate(worldX, worldY)
+        }
+
+        bodyManager.addBody(id, body)
     }
 }
 

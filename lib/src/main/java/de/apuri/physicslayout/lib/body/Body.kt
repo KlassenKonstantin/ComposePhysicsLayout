@@ -4,6 +4,8 @@ import org.dyn4j.dynamics.Body as LibBody
 class Body(
     width: Double = 0.0,
     height: Double = 0.0,
+    val offsetX: Double = 0.0,
+    val offsetY: Double = 0.0,
 ) : LibBody() {
     var width: Double = width
     private set

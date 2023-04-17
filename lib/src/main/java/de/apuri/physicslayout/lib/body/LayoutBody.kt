@@ -37,7 +37,7 @@ internal fun LayoutBody.toWorldBody() = WorldBody(
 )
 
 context(Simulation)
-internal fun LayoutBody.toWorldShape() = when {
+internal fun SizeAwareShape.toWorldShape() = when {
     shape.isCircle() -> toCircleShape()
     shape.isRectangle() -> toRectangleShape()
     shape.isRoundedCornerRectangle() -> toRoundedRectangleShape()

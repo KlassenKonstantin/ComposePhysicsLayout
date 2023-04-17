@@ -12,7 +12,7 @@ internal fun interface ApplyNewWorldBorder {
 internal class DefaultApplyNewWorldBorder(
     world: World<Body>
 ) : ApplyNewWorldBorder {
-    private var worldBorder: Body = Body().apply {
+    var worldBorder: Body = Body().apply {
         setMassType(MassType.INFINITE)
     }
 

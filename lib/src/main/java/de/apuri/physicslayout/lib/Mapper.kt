@@ -2,7 +2,7 @@ package de.apuri.physicslayout.lib
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
-import org.dyn4j.dynamics.Body
+import de.apuri.physicslayout.lib.body.Body
 import org.dyn4j.geometry.Vector2
 
 context(Simulation)

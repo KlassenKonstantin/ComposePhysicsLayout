@@ -3,7 +3,6 @@
 package de.apuri.physicslayout.lib
 
 import androidx.compose.foundation.layout.LayoutScopeMarker
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -60,7 +59,7 @@ fun PhysicsLayout(
         modifier = modifier,
         content = { remember(simulation) { PhysicsLayoutScopeInstance(simulation) }.content() }
     ) { measurables, constraints: Constraints ->
-        check(measurables.none { it.parentData as? BodyChildData == null } ) {
+        check(measurables.none { it.parentData as? BodyChildData == null }) {
             "All Composables must use the body modifier"
         }
 
@@ -74,7 +73,12 @@ fun PhysicsLayout(
                 height = placeable.height,
                 shape = childData.shape,
                 isStatic = childData.isStatic,
-                initialTranslation = density.run { Offset(childData.initialTranslation.x.toPx(), childData.initialTranslation.y.toPx()) }
+                initialTranslation = density.run {
+                    Offset(
+                        childData.initialTranslation.x.toPx(),
+                        childData.initialTranslation.y.toPx()
+                    )
+                }
             )
         }
 
@@ -181,7 +185,7 @@ private class PhysicsLayoutScopeInstance(
             isStatic = isStatic,
             initialTranslation = initialTranslation
         ).then(
-            if(dragConfig is DragConfig.Draggable) {
+            if (dragConfig is DragConfig.Draggable) {
                 touch { simulation.drag(bodyId, it, dragConfig) }
             } else {
                 Modifier
