@@ -10,11 +10,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.MaterialTheme
@@ -23,13 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
-import de.apuri.physicslayout.lib2.LocalSimulation
 import de.apuri.physicslayout.lib2.PhysicsLayout
-import de.apuri.physicslayout.lib2.physicsBody
 
 val colors = listOf(
     Color.Red,
@@ -39,55 +38,70 @@ val colors = listOf(
     Color.Yellow,
 )
 
+val shapes = listOf(
+    RectangleShape,
+    CircleShape,
+    RoundedCornerShape(32.dp),
+    CutCornerShape(16.dp),
+)
+
 @Composable
 fun SimpleScreen() {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        PhysicsLayout(
-            Modifier.systemBarsPadding().wrapContentSize(Alignment.TopCenter)
-        ) {
-            val sim = LocalSimulation.current
-            GravitySensor {
-                sim.setGravity(it.copy(x = -it.x).times(3f))
-            }
+        Column {
             Box(
-                contentAlignment = Alignment.Center
+                modifier = Modifier
+                    .systemBarsPadding()
+                    .aspectRatio(1f)
             ) {
-                Box(modifier = Modifier.background(Color.DarkGray)) {
+                PhysicsLayout(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.DarkGray),
+                    shape = RectangleShape
+                ) {
+                    GravitySensor {
+                        //sim.setGravity(it.copy(x = -it.x).times(3f))
+                    }
+//                Box(
+//                    modifier = Modifier
+//                        .aspectRatio(1f),
+//                    contentAlignment = Alignment.Center
+//                ) {
+//
+//                }
+
                     Row(
-                        Modifier
-                            .fillMaxWidth()
+                        Modifier.fillMaxSize()
                     ) {
-                        repeat(7) { col ->
+                        repeat(2) { col ->
                             Column(
                                 Modifier
+                                    .fillMaxHeight()
                                     .weight(1f),
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                repeat(6) { row ->
+                                repeat(2) { row ->
                                     Box(
-                                        Modifier.aspectRatio(1f),
+                                        Modifier
+                                            .weight(1f)
+                                            .fillMaxWidth(),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Ball(
-                                            "$col$row",
-                                            Color.hsv(
-                                                (((col + 1) * (row + 1)) / (7f * 6f)) * 360,
-                                                1f,
-                                                1f
-                                            )
-                                        )
+                                        Ball("$col$row")
                                     }
                                 }
                             }
                         }
                     }
                 }
+
             }
         }
-        
+
         Row(
             Modifier
                 .systemBarsPadding()
@@ -114,11 +128,17 @@ fun SimpleScreen() {
 }
 
 @Composable
-fun Ball(id: String, color: Color = Color(0xFF065f46)) {
+fun Ball(id: String, color: Color = Color(0xFFF44336)) {
     Box(
         modifier = Modifier
-            .physicsBody(id, CircleShape)
+//            .physicsBody(id, null)
             .size(32.dp)
             .background(color, CircleShape)
     )
 }
+
+//                                        Color.hsv(
+//                                            (((col + 1) * (row + 1)) / (7f * 7f)) * 360,
+//                                            1f,
+//                                            1f
+//                                        )

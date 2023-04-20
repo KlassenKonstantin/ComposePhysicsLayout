@@ -8,36 +8,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
-import org.dyn4j.geometry.MassType
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
-internal interface ScaleAware {
-    val scale: Double
-    val density: Density
-}
+//internal interface ScaleAware {
+//    val scale: Double
+//    val density: Density
+//}
 
 class Simulation internal constructor(
-    override val scale: Double,
-    override val density: Density,
-    private val world: World<WorldBody>,
-) : ScaleAware {
+    private val world: World<Body>,
+) {
 
     internal val transformations = mutableStateMapOf<String, LayoutTransformation>()
 
     private val bodyHolder = BodyHolder(world)
-    private val borderHolder = BorderHolder(world, this)
+    private val borderHolder = BorderHolder(world)
 
-    private var borderCoordinates: LayoutCoordinates? = null
+    //lateinit var physicsLayoutCoordinates: LayoutCoordinates
 
     fun setGravity(offset: Offset) {
-        world.gravity = offset.toVector2()
+//        world.gravity = offset.toVector2()
     }
 
     suspend fun run() {
@@ -49,79 +41,81 @@ class Simulation internal constructor(
 
             world.update(elapsed)
 
-            updateTransformations()
+//            updateTransformations()
 
             delay(1)
         }
     }
 
-    private fun updateTransformations() {
-        bodyHolder.bodies.mapValues {
-            it.value.toLayoutTransformation()
-        }.also {
-            transformations.putAll(it)
-        }
+//    private fun updateTransformations() {
+//        bodyHolder.bodies.mapValues {
+//            it.value.toLayoutTransformation()
+//        }.also {
+//            transformations.putAll(it)
+//        }
+//    }
+
+//    fun syncPhysicsBody(id: String, entity: LayoutEntity?) {
+//        if (entity == null) {
+//            bodyHolder.removeBody(id)
+//            return
+//        }
+//
+//        val simulationShape = SimulationShape.fromPhysicsEntity(entity)
+//
+//        val bodyWidth = entity.width.toSimulationSize()
+//        val bodyHeight = entity.height.toSimulationSize()
+//
+//        val worldWidth = borderHolder.worldBorder.width
+//        val worldHeight = borderHolder.worldBorder.height
+//
+//        val halfWorldWidth = worldWidth / 2
+//        val halfWorldHeight = worldHeight / 2
+//
+//        val lx = physicsLayoutCoordinates.localPositionOf(entity.layoutCoordinates.parentCoordinates!!, entity.layoutCoordinates.positionInParent()).x
+//        val lxe = worldWidth.toLayoutSize()
+//
+//        val ly = physicsLayoutCoordinates.localPositionOf(entity.layoutCoordinates.parentCoordinates!!, entity.layoutCoordinates.positionInParent()).y
+//        val lye = worldHeight.toLayoutSize()
+//
+//        val worldX = (lx * halfWorldWidth - lx * -halfWorldWidth + lxe * -halfWorldWidth) / lxe + bodyWidth / 2
+//        val worldY = (ly * halfWorldHeight - ly * -halfWorldHeight + lye * -halfWorldHeight) / lye + bodyHeight / 2
+//
+//        WorldBody(
+//            width = bodyWidth,
+//            height = bodyHeight,
+//            offset = Vector2(worldX, worldY)
+//        ).apply {
+//            angularDamping = 0.7
+//            isAtRestDetectionEnabled = false
+//            if (simulationShape != null) {
+//                createFixtures(simulationShape).forEach {
+//                    addFixture(it, 1.0, 0.2, 0.4)
+//                }
+//            }
+//            setMass(MassType.NORMAL)
+//
+//            translate(worldX, worldY)
+//        }.also {
+//            bodyHolder.addBody(id, it)
+//        }
+//    }
+
+    fun syncPhysicsBorder(entity: LayoutEntity) {
+//        borderHolder.setBorderFrom(entity)
+//        physicsLayoutCoordinates = entity.layoutCoordinates
     }
 
-    fun syncPhysicsBody(id: String, physicsBody: PhysicsBody?) {
-        if (physicsBody == null) {
-            bodyHolder.removeBody(id)
-            return
-        }
-
-        val worldShape = physicsBody.toWorldShape()
-
-        val bodyWidth = physicsBody.width.toWorldSize()
-        val bodyHeight = physicsBody.height.toWorldSize()
-
-        val worldWidth = borderHolder.worldBorder.width
-        val worldHeight = borderHolder.worldBorder.height
-
-        val halfWorldWidth = worldWidth / 2
-        val halfWorldHeight = worldHeight / 2
-
-        val lx = borderCoordinates!!.localPositionOf(physicsBody.layoutCoordinates.parentCoordinates!!, physicsBody.layoutCoordinates.positionInParent()).x
-        val lxe = worldWidth.toLayoutSize()
-
-        val ly = borderCoordinates!!.localPositionOf(physicsBody.layoutCoordinates.parentCoordinates!!, physicsBody.layoutCoordinates.positionInParent()).y
-        val lye = worldHeight.toLayoutSize()
-
-        val worldX = (lx * halfWorldWidth - lx * -halfWorldWidth + lxe * -halfWorldWidth) / lxe + bodyWidth / 2
-        val worldY = (ly * halfWorldHeight - ly * -halfWorldHeight + lye * -halfWorldHeight) / lye + bodyHeight / 2
-
-        WorldBody(
-            width = bodyWidth,
-            height = bodyHeight,
-            offset = Vector2(worldX, worldY)
-        ).apply {
-            angularDamping = 0.7
-            isAtRestDetectionEnabled = false
-            createFixtures(worldShape).forEach {
-                addFixture(it, 1.0, 0.2, 0.4)
-            }
-            setMass(MassType.NORMAL)
-
-            translate(worldX, worldY)
-        }.also {
-            bodyHolder.addBody(id, it)
-        }
-    }
-
-    fun syncPhysicsBorder(physicsBorder: PhysicsBorder?) {
-        borderHolder.setBorderFrom(physicsBorder)
-        borderCoordinates = physicsBorder?.layoutCoordinates
+    internal fun syncSimulationBorder(simulationBorder: SimulationBorder) {
+        borderHolder.syncBorder(simulationBorder)
     }
 }
 
 @Composable
-fun rememberSimulation(
-    scale: Dp = DEFAULT_SCALE,
-): Simulation {
-    val scalePx = LocalDensity.current.run { scale.toPx().toDouble() }
-    val density = LocalDensity.current
-
-    val simulation = remember(scale) {
-        Simulation(scalePx, density, createDefaultWorld())
+fun rememberSimulation(): Simulation {
+    val simulation = remember {
+        // Add clock as parameter
+        Simulation(createDefaultWorld())
     }
 
     LaunchedEffect(simulation) {
@@ -131,11 +125,9 @@ fun rememberSimulation(
     return simulation
 }
 
-private val DEFAULT_SCALE = 64.dp
-
 private const val EARTH_GRAVITY = 9.81
 
-private fun createDefaultWorld() = World<WorldBody>().apply {
+private fun createDefaultWorld() = World<Body>().apply {
     gravity = Vector2(0.0, EARTH_GRAVITY)
     settings.stepFrequency = 1.0 / 90
 }
@@ -147,21 +139,29 @@ internal data class LayoutTransformation(
     val rotation: Float,
 )
 
-interface PhysicsEntity {
+interface LayoutEntity {
     val width: Int
     val height: Int
-    val shape: Shape
+    val layoutCoordinates: LayoutCoordinates
 }
-data class PhysicsBody(
-    override val width: Int,
-    override val height: Int,
-    override val shape: Shape,
-    val layoutCoordinates: LayoutCoordinates,
-) : PhysicsEntity
 
-data class PhysicsBorder(
+data class LayoutBody(
     override val width: Int,
     override val height: Int,
-    override val shape: Shape,
-    val layoutCoordinates: LayoutCoordinates,
-) : PhysicsEntity
+    override val layoutCoordinates: LayoutCoordinates,
+    val shape: Shape
+) : LayoutEntity
+
+data class LayoutBorder(
+    override val width: Int,
+    override val height: Int,
+    override val layoutCoordinates: LayoutCoordinates,
+    val shape: Shape?
+) : LayoutEntity
+
+// Das hier:
+internal data class SimulationBorder(
+    val width: Double,
+    val height: Double,
+    val shape: SimulationShape?
+)

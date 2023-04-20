@@ -5,13 +5,13 @@ import org.dyn4j.world.World
 private const val ID_BORDER = "__border__"
 
 internal class BodyHolder(
-    private val world: World<WorldBody>,
+    private val world: World<Body>,
 ) {
-    val bodies: MutableMap<String, WorldBody> = mutableMapOf()
+    val bodies: MutableMap<String, Body> = mutableMapOf()
 
-    fun addBody(id: String, worldBody: WorldBody) {
-        world.addBody(worldBody)
-        bodies[id]= worldBody
+    fun addBody(id: String, body: Body) {
+        world.addBody(body)
+        bodies[id]= body
     }
 
     fun removeBody(id: String) {

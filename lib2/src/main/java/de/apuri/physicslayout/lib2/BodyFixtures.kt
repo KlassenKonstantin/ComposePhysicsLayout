@@ -7,18 +7,18 @@ import org.dyn4j.geometry.hull.GiftWrap
 import kotlin.math.sqrt
 
 internal fun createFixtures(
-    shape: WorldShape,
+    shape: SimulationShape,
 ): List<Convex> = when (shape) {
-    is WorldShape.Circle -> listOf(Geometry.createCircle(shape.radius))
-    is WorldShape.Rectangle -> listOf(
+    is SimulationShape.Circle -> listOf(Geometry.createCircle(shape.radius))
+    is SimulationShape.Rectangle -> listOf(
         Geometry.createRectangle(
             shape.width,
             shape.height
         )
     )
-    is WorldShape.RoundedCornerRectangle -> createRoundedRectShape(shape)
-    is WorldShape.CutCornerRectangle -> createCutCornerRectShape(shape)
-    is WorldShape.Generic -> createFromVertices(shape.vertices)
+    is SimulationShape.RoundedCornerRectangle -> createRoundedRectShape(shape)
+    is SimulationShape.CutCornerRectangle -> createCutCornerRectShape(shape)
+    is SimulationShape.Generic -> createFromVertices(shape.vertices)
 }
 
 private fun createFromVertices(vertices: List<Vector2>): List<Convex> {
@@ -28,7 +28,7 @@ private fun createFromVertices(vertices: List<Vector2>): List<Convex> {
 }
 
 private fun createRoundedRectShape(
-    shape: WorldShape.RoundedCornerRectangle
+    shape: SimulationShape.RoundedCornerRectangle
 ): List<Convex> {
     val fixtures = mutableListOf<Convex>()
     val radius = shape.cornerRadius
@@ -72,7 +72,7 @@ private fun createRoundedRectShape(
 }
 
 private fun createCutCornerRectShape(
-    shape: WorldShape.CutCornerRectangle
+    shape: SimulationShape.CutCornerRectangle
 ): List<Convex> {
     val fixtures = mutableListOf<Convex>()
     val cutLength = shape.cutLength
