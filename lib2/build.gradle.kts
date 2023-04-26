@@ -40,7 +40,6 @@ android {
 }
 
 dependencies {
-
     val composeBomAlphas = platform("dev.chrisbanes.compose:compose-bom:2023.02.00-rc02")
     implementation(platform(composeBomAlphas))
     implementation("androidx.compose.foundation:foundation")

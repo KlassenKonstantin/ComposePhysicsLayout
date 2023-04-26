@@ -2,7 +2,6 @@
 
 package de.apuri.physicslayout.lib2
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable

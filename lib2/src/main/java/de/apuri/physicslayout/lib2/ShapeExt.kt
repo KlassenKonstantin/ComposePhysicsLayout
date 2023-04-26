@@ -14,7 +14,12 @@ import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 
-internal fun Shape.toPoints(size: Size, layoutDirection: LayoutDirection, density: Density, steps: Int): List<Offset> {
+internal fun Shape.toPoints(
+    size: Size,
+    layoutDirection: LayoutDirection,
+    density: Density,
+    steps: Int
+): List<Offset> {
     val outline = createOutline(size, layoutDirection, density)
     val path = Path().apply { addOutline(outline) }
     if (!path.isConvex) {
