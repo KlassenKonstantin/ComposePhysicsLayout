@@ -1,16 +1,9 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.conversion
 
-import android.util.Log
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.LayoutDirection
-import org.dyn4j.geometry.Vector2
+import de.apuri.physicslayout.lib2.LayoutTransformation
+import de.apuri.physicslayout.lib2.simulation.SimulationTransformation
 
 internal class SimulationToLayout(
     private val density: Density,

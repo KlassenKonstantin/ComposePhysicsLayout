@@ -1,10 +1,10 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.simulation
 
 import org.dyn4j.geometry.MassType
 import org.dyn4j.world.World
 
 internal class BorderHolder(
-    private val world: World<SimulationEntity>,
+    private val world: World<SimulationEntity<*>>,
 ) {
     private var currentBorder: SimulationBorder? = null
 
@@ -16,6 +16,6 @@ internal class BorderHolder(
     fun syncBorder(newBorder: SimulationBorder) {
         if (currentBorder == newBorder) return
 
-        borderSimulationEntity.updateBorderFrom(newBorder)
+        borderSimulationEntity.updateFrom(newBorder)
     }
 }

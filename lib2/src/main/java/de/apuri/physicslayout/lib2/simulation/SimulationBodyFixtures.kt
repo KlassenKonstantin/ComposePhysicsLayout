@@ -1,4 +1,4 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.simulation
 
 import org.dyn4j.geometry.Convex
 import org.dyn4j.geometry.Geometry

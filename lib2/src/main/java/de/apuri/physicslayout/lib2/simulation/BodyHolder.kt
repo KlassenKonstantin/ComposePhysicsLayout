@@ -1,10 +1,10 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.simulation
 
-import de.apuri.physicslayout.lib2.SimulationEntity.Body
+import de.apuri.physicslayout.lib2.simulation.SimulationEntity.Body
 import org.dyn4j.world.World
 
 internal class BodyHolder(
-    private val world: World<SimulationEntity>,
+    private val world: World<SimulationEntity<*>>,
 ) {
     val bodies: MutableMap<String, Body> = mutableMapOf()
 

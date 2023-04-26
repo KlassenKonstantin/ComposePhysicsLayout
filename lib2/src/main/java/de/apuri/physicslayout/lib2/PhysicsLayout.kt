@@ -20,6 +20,10 @@ import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import de.apuri.physicslayout.lib2.conversion.LayoutToSimulation
+import de.apuri.physicslayout.lib2.conversion.SimulationToLayout
+import de.apuri.physicslayout.lib2.simulation.Simulation
+import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 import java.util.UUID
 
 private val DEFAULT_SCALE = 64.dp

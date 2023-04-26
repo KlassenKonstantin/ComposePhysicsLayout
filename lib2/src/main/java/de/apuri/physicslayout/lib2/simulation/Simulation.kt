@@ -1,4 +1,4 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.simulation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -6,15 +6,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
-import kotlinx.coroutines.Dispatchers
+import de.apuri.physicslayout.lib2.BodyConfig
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.internal.synchronized
-import kotlinx.coroutines.withContext
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
 class Simulation internal constructor(
-    private val world: World<SimulationEntity>,
+    private val world: World<SimulationEntity<*>>,
 ) {
 
     internal val transformations = mutableStateMapOf<String, SimulationTransformation>()
@@ -74,7 +72,7 @@ fun rememberSimulation(): Simulation {
 
 private const val EARTH_GRAVITY = 9.81
 
-private fun createDefaultWorld() = World<SimulationEntity>().apply {
+private fun createDefaultWorld() = World<SimulationEntity<*>>().apply {
     gravity = Vector2(0.0, EARTH_GRAVITY)
     settings.stepFrequency = 1.0 / 90
 }

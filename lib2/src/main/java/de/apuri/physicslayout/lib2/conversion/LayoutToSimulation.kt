@@ -1,4 +1,4 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.conversion
 
 import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -10,6 +10,17 @@ import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import de.apuri.physicslayout.lib2.BodyConfig
+import de.apuri.physicslayout.lib2.TAG
+import de.apuri.physicslayout.lib2.isCircle
+import de.apuri.physicslayout.lib2.isRectangle
+import de.apuri.physicslayout.lib2.isRoundedCornerRectangle
+import de.apuri.physicslayout.lib2.isSupported
+import de.apuri.physicslayout.lib2.simulation.SimulationBody
+import de.apuri.physicslayout.lib2.simulation.SimulationBorder
+import de.apuri.physicslayout.lib2.simulation.SimulationShape
+import de.apuri.physicslayout.lib2.toPoints
+import de.apuri.physicslayout.lib2.toRadius
 import org.dyn4j.geometry.Vector2
 
 private const val PATH_SEGMENTS = 1001

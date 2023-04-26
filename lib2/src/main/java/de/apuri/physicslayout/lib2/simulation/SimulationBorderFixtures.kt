@@ -1,6 +1,5 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.simulation
 
-import android.util.Log
 import org.dyn4j.geometry.Convex
 import org.dyn4j.geometry.Geometry
 
