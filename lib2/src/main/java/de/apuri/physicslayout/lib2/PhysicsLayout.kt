@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,6 +83,12 @@ fun Modifier.physicsBody(
     val layoutToSimulation = LocalLayoutToSimulation.current
     val simulationToLayout = LocalSimulationToLayout.current
     val layoutOffset = remember { mutableStateOf(Offset.Zero) }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            simulation.syncSimulationBody(bodyId, null)
+        }
+    }
 
     onPlaced { coordinates ->
         val (body, offsetFromCenter) = layoutToSimulation.convertBody(

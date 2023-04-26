@@ -51,8 +51,12 @@ class Simulation internal constructor(
         borderHolder.syncBorder(simulationBorder)
     }
 
-    internal fun syncSimulationBody(id: String, body: SimulationBody) {
-        bodyHolder.syncBody(id, body)
+    internal fun syncSimulationBody(id: String, body: SimulationBody?) {
+        if (body == null) {
+            bodyHolder.removeBody(id)
+        } else {
+            bodyHolder.syncBody(id, body)
+        }
     }
 }
 
