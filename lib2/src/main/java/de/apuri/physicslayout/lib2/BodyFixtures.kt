@@ -6,19 +6,12 @@ import org.dyn4j.geometry.Vector2
 import org.dyn4j.geometry.hull.GiftWrap
 import kotlin.math.sqrt
 
-internal fun createFixtures(
-    shape: SimulationShape,
-): List<Convex> = when (shape) {
-    is SimulationShape.Circle -> listOf(Geometry.createCircle(shape.radius))
-    is SimulationShape.Rectangle -> listOf(
-        Geometry.createRectangle(
-            shape.width,
-            shape.height
-        )
-    )
-    is SimulationShape.RoundedCornerRectangle -> createRoundedRectShape(shape)
-    is SimulationShape.CutCornerRectangle -> createCutCornerRectShape(shape)
-    is SimulationShape.Generic -> createFromVertices(shape.vertices)
+internal fun SimulationShape.toSimulationBodyFixtures(): List<Convex> = when (this) {
+    is SimulationShape.Circle -> listOf(Geometry.createCircle(radius))
+    is SimulationShape.Rectangle -> listOf(Geometry.createRectangle(width, height))
+    is SimulationShape.RoundedCornerRectangle -> toRoundedRectShape()
+    is SimulationShape.CutCornerRectangle -> toCutCornerRectShape()
+    is SimulationShape.Generic -> createFromVertices(vertices)
 }
 
 private fun createFromVertices(vertices: List<Vector2>): List<Convex> {
@@ -27,14 +20,12 @@ private fun createFromVertices(vertices: List<Vector2>): List<Convex> {
     )
 }
 
-private fun createRoundedRectShape(
-    shape: SimulationShape.RoundedCornerRectangle
-): List<Convex> {
+private fun SimulationShape.RoundedCornerRectangle.toRoundedRectShape(): List<Convex> {
     val fixtures = mutableListOf<Convex>()
-    val radius = shape.cornerRadius
+    val radius = cornerRadius
 
-    val halfBodyWidth = shape.width / 2
-    val halfBodyHeight = shape.height / 2
+    val halfBodyWidth = width / 2
+    val halfBodyHeight = height / 2
 
     // Top left
     fixtures += Geometry.createCircle(radius).apply {
@@ -58,28 +49,26 @@ private fun createRoundedRectShape(
 
     // Rect A
     fixtures += Geometry.createRectangle(
-        shape.width - 2 * radius,
-        shape.height,
+        width - 2 * radius,
+        height,
     )
 
     // Rect B
     fixtures += Geometry.createRectangle(
-        shape.width,
-        shape.height - 2 * radius,
+        width,
+        height - 2 * radius,
     )
 
     return fixtures
 }
 
-private fun createCutCornerRectShape(
-    shape: SimulationShape.CutCornerRectangle
-): List<Convex> {
+private fun SimulationShape.CutCornerRectangle.toCutCornerRectShape(): List<Convex> {
     val fixtures = mutableListOf<Convex>()
-    val cutLength = shape.cutLength
+    val cutLength = cutLength
     val legLength = (sqrt(2.0 / 2)) * cutLength
 
-    val halfBodyWidth = shape.width / 2
-    val halfBodyHeight = shape.height / 2
+    val halfBodyWidth = width / 2
+    val halfBodyHeight = height / 2
 
     // Top left
     fixtures += Geometry.createTriangle(Vector2(), Vector2(-legLength, 0.0), Vector2(0.0, -legLength)).apply {
@@ -103,14 +92,14 @@ private fun createCutCornerRectShape(
 
     // Rect A
     fixtures += Geometry.createRectangle(
-        shape.width - 2 * legLength,
-        shape.height,
+        width - 2 * legLength,
+        height,
     )
 
     // Rect B
     fixtures += Geometry.createRectangle(
-        shape.width,
-        shape.height - 2 * legLength,
+        width,
+        height - 2 * legLength,
     )
 
     return fixtures

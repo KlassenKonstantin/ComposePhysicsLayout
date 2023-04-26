@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
@@ -19,16 +20,27 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
+import de.apuri.physicslayout.lib2.BodyConfig
+import de.apuri.physicslayout.lib2.LocalSimulation
 import de.apuri.physicslayout.lib2.PhysicsLayout
+import de.apuri.physicslayout.lib2.physicsBody
+import de.apuri.physicslayout.lib2.rememberSimulation
 
 val colors = listOf(
     Color.Red,
@@ -51,87 +63,145 @@ fun SimpleScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column {
+        var sliderDensity by remember { mutableStateOf(0f) }
+        var sliderFriction by remember { mutableStateOf(0f) }
+        var sliderRestitution by remember { mutableStateOf(0f) }
+
+        Column(
+            Modifier.systemBarsPadding()
+        ) {
             Box(
                 modifier = Modifier
-                    .systemBarsPadding()
-                    .aspectRatio(1f)
+                    .weight(1f)
             ) {
                 PhysicsLayout(
                     Modifier
                         .fillMaxSize()
                         .background(Color.DarkGray),
-                    shape = RectangleShape
+                    shape = RectangleShape,
                 ) {
+                    val sim = LocalSimulation.current
                     GravitySensor {
-                        //sim.setGravity(it.copy(x = -it.x).times(3f))
+                        sim.setGravity(it.copy(x = -it.x))
                     }
-//                Box(
-//                    modifier = Modifier
-//                        .aspectRatio(1f),
-//                    contentAlignment = Alignment.Center
-//                ) {
-//
-//                }
-
                     Row(
                         Modifier.fillMaxSize()
                     ) {
-                        repeat(2) { col ->
+                        repeat(10) { col ->
                             Column(
                                 Modifier
                                     .fillMaxHeight()
                                     .weight(1f),
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                repeat(2) { row ->
+                                repeat(15) { row ->
                                     Box(
                                         Modifier
                                             .weight(1f)
                                             .fillMaxWidth(),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        Ball("$col$row")
+                                        val bodyConfig = BodyConfig(
+                                            density = sliderDensity,
+                                            friction = sliderFriction,
+                                            restitution = sliderRestitution,
+                                        )
+                                        Ball("$col$row", bodyConfig = bodyConfig)
                                     }
                                 }
                             }
                         }
                     }
                 }
-
+            }
+            Column(
+                modifier = Modifier.weight(0.5f)
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Density",
+                        Modifier
+                            .padding(end = 16.dp)
+                            .weight(1f)
+                    )
+                    Slider(value = sliderDensity, onValueChange = {
+                        sliderDensity = it
+                    }, Modifier.weight(3f), valueRange = 0f..1f)
+                }
+                Row(
+                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Friction",
+                        Modifier
+                            .padding(end = 16.dp)
+                            .weight(1f)
+                    )
+                    Slider(
+                        value = sliderFriction,
+                        onValueChange = { sliderFriction = it },
+                        Modifier.weight(3f),
+                        valueRange = 0f..1f
+                    )
+                }
+                Row(
+                    Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Restitution",
+                        Modifier
+                            .padding(end = 16.dp)
+                            .weight(1f)
+                    )
+                    Slider(
+                        value = sliderRestitution,
+                        onValueChange = { sliderRestitution = it },
+                        Modifier.weight(3f),
+                        valueRange = 0f..1f
+                    )
+                }
             }
         }
 
-        Row(
-            Modifier
-                .systemBarsPadding()
-                .fillMaxSize(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Box(
-                Modifier
-                    .fillMaxHeight()
-                    .width((1f / LocalDensity.current.density).dp)
-                    .background(color = DividerDefaults.color)
-            )
-        }
-
-        Column(
-            Modifier
-                .systemBarsPadding()
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center
-        ) {
-            Divider(thickness = (1f / LocalDensity.current.density).dp)
-        }
+//        Row(
+//            Modifier
+//                .systemBarsPadding()
+//                .fillMaxSize(),
+//            horizontalArrangement = Arrangement.Center
+//        ) {
+//            Box(
+//                Modifier
+//                    .fillMaxHeight()
+//                    .width((1f / LocalDensity.current.density).dp)
+//                    .background(color = DividerDefaults.color)
+//            )
+//        }
+//
+//        Column(
+//            Modifier
+//                .systemBarsPadding()
+//                .fillMaxSize(),
+//            verticalArrangement = Arrangement.Center
+//        ) {
+//            Divider(thickness = (1f / LocalDensity.current.density).dp)
+//        }
     }
 }
 
 @Composable
-fun Ball(id: String, color: Color = Color(0xFFF44336)) {
+fun Ball(
+    id: String,
+    color: Color = Color(0xFFF44336),
+    bodyConfig: BodyConfig
+) {
     Box(
         modifier = Modifier
-//            .physicsBody(id, null)
+            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig)
             .size(32.dp)
             .background(color, CircleShape)
     )

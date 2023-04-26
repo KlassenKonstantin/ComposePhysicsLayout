@@ -13,7 +13,6 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.graphics.path.PathIterator
 
 internal fun Shape.toPoints(size: Size, layoutDirection: LayoutDirection, density: Density, steps: Int): List<Offset> {
     val outline = createOutline(size, layoutDirection, density)

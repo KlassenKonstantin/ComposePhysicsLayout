@@ -34,11 +34,11 @@ import org.dyn4j.world.World
 //}
 
 internal class BorderHolder(
-    private val world: World<Body>,
+    private val world: World<SimulationEntity>,
 ) {
     var currentBorder: SimulationBorder? = null
 
-    val borderBody = Body().apply {
+    val borderSimulationEntity = SimulationEntity.Border().apply {
         setMassType(MassType.INFINITE)
         world.addBody(this)
     }
@@ -46,6 +46,6 @@ internal class BorderHolder(
     fun syncBorder(newBorder: SimulationBorder) {
         if (currentBorder == newBorder) return
 
-        borderBody.updateFrom(newBorder)
+        borderSimulationEntity.updateBorderFrom(newBorder)
     }
 }
