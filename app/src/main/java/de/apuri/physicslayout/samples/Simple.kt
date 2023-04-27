@@ -27,11 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.lib2.BodyConfig
 import de.apuri.physicslayout.lib2.LocalSimulation
 import de.apuri.physicslayout.lib2.PhysicsLayout
+import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.physicsBody
 
 val colors = listOf(
@@ -55,7 +57,7 @@ fun SimpleScreen() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        var sliderDensity by remember { mutableStateOf(0f) }
+        var sliderDensity by remember { mutableStateOf(0.5f) }
         var sliderFriction by remember { mutableStateOf(0f) }
         var sliderRestitution by remember { mutableStateOf(0f) }
 
@@ -86,7 +88,7 @@ fun SimpleScreen() {
                                     .weight(1f),
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                repeat(15) { row ->
+                                repeat(5) { row ->
                                     Box(
                                         Modifier
                                             .weight(1f)
@@ -193,7 +195,7 @@ fun Ball(
 ) {
     Box(
         modifier = Modifier
-            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig)
+            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig, DragConfig())
             .size(32.dp)
             .background(color, CircleShape)
     )

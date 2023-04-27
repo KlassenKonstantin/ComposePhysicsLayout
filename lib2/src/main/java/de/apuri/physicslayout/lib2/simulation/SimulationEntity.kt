@@ -1,4 +1,5 @@
 package de.apuri.physicslayout.lib2.simulation
+import android.util.Log
 import org.dyn4j.geometry.MassType
 import org.dyn4j.dynamics.Body as LibBody
 
@@ -17,9 +18,8 @@ internal sealed class SimulationEntity<T> : LibBody() {
 
         override fun updateFrom(current: SimulationBody?, new: SimulationBody) {
             angularDamping = new.bodyConfig.angularDamping.toDouble()
-            setMass(if (new.bodyConfig.isStatic) MassType.INFINITE else MassType.NORMAL)
 
-            if (current?.shape != new.shape) {
+            if (new.shape != current?.shape) {
                 removeAllFixtures()
                 new.shape.toSimulationBodyFixtures().forEach {
                     addFixture(
@@ -29,9 +29,8 @@ internal sealed class SimulationEntity<T> : LibBody() {
                         new.bodyConfig.restitution.toDouble(),
                     )
                 }
-            }
-
-            if (current?.bodyConfig != new.bodyConfig) {
+                setMass(if (new.bodyConfig.isStatic) MassType.INFINITE else MassType.NORMAL)
+            } else if (new.bodyConfig != current.bodyConfig) {
                 fixtures.forEach {
                     it.density = new.bodyConfig.density.toDouble()
                     it.friction = new.bodyConfig.friction.toDouble()

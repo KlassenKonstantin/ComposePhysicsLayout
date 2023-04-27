@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import de.apuri.physicslayout.lib2.BodyConfig
 import de.apuri.physicslayout.lib2.TAG
+import de.apuri.physicslayout.lib2.drag.LayoutTouchEvent
 import de.apuri.physicslayout.lib2.isCircle
 import de.apuri.physicslayout.lib2.isRectangle
 import de.apuri.physicslayout.lib2.isRoundedCornerRectangle
@@ -19,6 +20,7 @@ import de.apuri.physicslayout.lib2.isSupported
 import de.apuri.physicslayout.lib2.simulation.SimulationBody
 import de.apuri.physicslayout.lib2.simulation.SimulationBorder
 import de.apuri.physicslayout.lib2.simulation.SimulationShape
+import de.apuri.physicslayout.lib2.simulation.SimulationTouchEvent
 import de.apuri.physicslayout.lib2.toPoints
 import de.apuri.physicslayout.lib2.toRadius
 import org.dyn4j.geometry.Vector2
@@ -49,12 +51,15 @@ internal class LayoutToSimulation(
         /**
          * Half width and height of the [PhysicsLayout]
          */
-        val (bwh, bhh) = IntSize(bw/2, bh/2)
+        val (bwh, bhh) = IntSize(bw / 2, bh / 2)
 
         /**
          * The local position of the composable in the [LayoutCoordinates] of the [PhysicsLayout]
          */
-        val (lx, ly) = containerLayoutCoordinates.localPositionOf(coordinates.parentCoordinates!!, coordinates.positionInParent())
+        val (lx, ly) = containerLayoutCoordinates.localPositionOf(
+            coordinates.parentCoordinates!!,
+            coordinates.positionInParent()
+        )
 
         /**
          * Position of the composable with the origin in the center of the [PhysicsLayout].
@@ -69,10 +74,16 @@ internal class LayoutToSimulation(
             width = lw.toSimulationSize(),
             height = lh.toSimulationSize(),
             shape = shape.toSimulationShape(coordinates.size)!!,
-            initialOffset = positionFromCenter.toWorldVector2(),
+            initialOffset = positionFromCenter.toSimulationVector2(),
             bodyConfig = bodyConfig,
         ) to positionFromCenter
     }
+
+    fun convertTouchEvent(touchEvent: LayoutTouchEvent) = SimulationTouchEvent(
+        pointerId = touchEvent.pointerId,
+        offset = touchEvent.offset.toSimulationVector2(),
+        type = touchEvent.type
+    )
 
     fun convertBorder(size: IntSize, shape: Shape?) = SimulationBorder(
         width = size.width.toSimulationSize(),
@@ -86,10 +97,10 @@ internal class LayoutToSimulation(
 
     private fun Float.toSimulationSize() = this / scale
 
-    private fun Offset.toWorldVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
+    private fun Offset.toSimulationVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
 
     private fun List<Offset>.toVector2() = map {
-        it.toWorldVector2()
+        it.toSimulationVector2()
     }
 
     private fun Shape?.toSimulationShape(size: IntSize) = when {
@@ -100,6 +111,7 @@ internal class LayoutToSimulation(
             size.width.toSimulationSize(),
             size.height.toSimulationSize()
         )
+
         isRoundedCornerRectangle() -> SimulationShape.RoundedCornerRectangle(
             width = size.width.toSimulationSize(),
             height = size.height.toSimulationSize(),
@@ -109,6 +121,7 @@ internal class LayoutToSimulation(
                 density
             ).toSimulationSize()
         )
+
         else -> SimulationShape.Generic(
             toPoints(
                 Size(size.width.toFloat(), size.height.toFloat()),

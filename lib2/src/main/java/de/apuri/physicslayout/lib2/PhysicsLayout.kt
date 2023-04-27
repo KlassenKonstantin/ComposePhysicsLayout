@@ -23,11 +23,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.lib2.conversion.LayoutToSimulation
 import de.apuri.physicslayout.lib2.conversion.SimulationToLayout
+import de.apuri.physicslayout.lib2.drag.DragConfig
+import de.apuri.physicslayout.lib2.drag.touch
 import de.apuri.physicslayout.lib2.simulation.Simulation
 import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 import java.util.UUID
 
-private val DEFAULT_SCALE = 64.dp
+private val DEFAULT_SCALE = 16.dp
 internal const val TAG = "PhysicsLayout"
 
 @Composable
@@ -77,6 +79,7 @@ fun Modifier.physicsBody(
     id: String? = null,
     shape: Shape = RectangleShape,
     bodyConfig: BodyConfig,
+    dragConfig: DragConfig? = null,
 ) = composed {
     val bodyId = id ?: remember { UUID.randomUUID().toString() }
     val simulation = LocalSimulation.current
@@ -100,12 +103,17 @@ fun Modifier.physicsBody(
         simulation.syncSimulationBody(bodyId, body)
     }.graphicsLayer {
         simulation.transformations[bodyId]?.let {
-            val layoutTransformation = simulationToLayout.convertTransformation(layoutOffset.value, it)
+            val layoutTransformation =
+                simulationToLayout.convertTransformation(layoutOffset.value, it)
             translationX = layoutTransformation.translationX
             translationY = layoutTransformation.translationY
             rotationZ = layoutTransformation.rotation
         }
-    }
+    }.then(if (dragConfig != null) {
+        touch {
+            simulation.drag(bodyId, layoutToSimulation.convertTouchEvent(it), dragConfig)
+        }
+    } else Modifier)
 }
 
 internal fun Modifier.physicsBorder(

@@ -1,5 +1,6 @@
 package de.apuri.physicslayout.lib2.simulation
 
+import android.util.Log
 import de.apuri.physicslayout.lib2.simulation.SimulationEntity.Body
 import org.dyn4j.world.World
 
@@ -18,6 +19,7 @@ internal class BodyHolder(
     fun syncBody(id: String, body: SimulationBody) {
         bodies.getOrPut(id) {
             Body().apply {
+                gravityScale = 10.0
                 isAtRestDetectionEnabled = false
                 translate(body.initialOffset)
                 world.addBody(this)

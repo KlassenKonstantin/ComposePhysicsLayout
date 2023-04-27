@@ -1,5 +1,6 @@
 package de.apuri.physicslayout.lib2.simulation
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -7,6 +8,10 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import de.apuri.physicslayout.lib2.BodyConfig
+import de.apuri.physicslayout.lib2.drag.DefaultDragHandler
+import de.apuri.physicslayout.lib2.drag.DragConfig
+import de.apuri.physicslayout.lib2.drag.DragHandler
+import de.apuri.physicslayout.lib2.drag.TouchType
 import kotlinx.coroutines.delay
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
@@ -19,6 +24,7 @@ class Simulation internal constructor(
 
     private val bodyHolder = BodyHolder(world)
     private val borderHolder = BorderHolder(world)
+    private val dragHandler = DefaultDragHandler(world)
 
     fun setGravity(offset: Offset) {
         world.gravity = Vector2(offset.x.toDouble(), offset.y.toDouble())
@@ -55,7 +61,14 @@ class Simulation internal constructor(
         if (body == null) {
             bodyHolder.removeBody(id)
         } else {
+            Log.d("asdf", "SYNC $body")
             bodyHolder.syncBody(id, body)
+        }
+    }
+
+    internal fun drag(bodyId: String, touchEvent: SimulationTouchEvent, dragConfig: DragConfig) {
+        bodyHolder.bodies[bodyId]?.let {
+            dragHandler.drag(it, touchEvent, dragConfig)
         }
     }
 }
@@ -93,6 +106,12 @@ internal data class SimulationBody(
     val shape: SimulationShape,
     val initialOffset: Vector2,
     val bodyConfig: BodyConfig,
+)
+
+internal data class SimulationTouchEvent(
+    val pointerId: Long,
+    val offset: Vector2,
+    val type: TouchType
 )
 
 @Immutable
