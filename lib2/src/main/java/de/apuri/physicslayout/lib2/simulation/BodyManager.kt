@@ -1,10 +1,9 @@
 package de.apuri.physicslayout.lib2.simulation
 
-import android.util.Log
 import de.apuri.physicslayout.lib2.simulation.SimulationEntity.Body
 import org.dyn4j.world.World
 
-internal class BodyHolder(
+internal class BodyManager(
     private val world: World<SimulationEntity<*>>,
 ) {
     val bodies: MutableMap<String, Body> = mutableMapOf()

@@ -38,7 +38,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-private val DEFAULT_SCALE = 16.dp
+private val DEFAULT_SCALE = 32.dp
 internal const val TAG = "PhysicsLayout"
 
 @Composable
@@ -66,7 +66,8 @@ fun PhysicsLayout(
         LocalSimulationToLayout provides simulationToLayout,
     ) {
         Box(
-            modifier = modifier.physicsBorder(shape, simulation, layoutToSimulation),
+            modifier = modifier
+                .physicsBorder(shape, simulation, layoutToSimulation),
             content = content
         )
     }
@@ -95,7 +96,6 @@ private val conv = object : TwoWayConverter<LayoutTransformation, AnimationVecto
         get() = {
             AnimationVector3D(it.translationX, it.translationY, it.rotation)
         }
-
 }
 
 fun Modifier.physicsBody(

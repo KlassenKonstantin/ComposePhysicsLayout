@@ -63,7 +63,7 @@ fun Paywall() {
             .fillMaxSize(),
         color = color
     ) {
-        val clock = rememberClock()
+        val clock = rememberClock(autoStart = false)
         val sim = rememberSimulation(clock)
         var currentGravity by remember { mutableStateOf(Offset(9.2f, 3.4f)) }
         val docked by remember {

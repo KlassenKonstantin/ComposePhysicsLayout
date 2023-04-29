@@ -10,11 +10,22 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-class Clock internal constructor(private val scope: CoroutineScope) {
+class Clock internal constructor(
+    private val scope: CoroutineScope,
+    autoStart: Boolean
+) {
 
-    val frames = MutableSharedFlow<Double>(replay = 0, extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.SUSPEND)
+    internal val frames = MutableSharedFlow<Double>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.SUSPEND
+    )
 
     private var job: Job? = null
+
+    init {
+        if (autoStart) start()
+    }
 
     fun start() {
         if (job != null) return
@@ -38,9 +49,11 @@ class Clock internal constructor(private val scope: CoroutineScope) {
 }
 
 @Composable
-fun rememberClock(): Clock {
+fun rememberClock(
+    autoStart: Boolean = true
+): Clock {
     val scope = rememberCoroutineScope()
     return remember {
-        Clock(scope)
+        Clock(scope, autoStart)
     }
 }

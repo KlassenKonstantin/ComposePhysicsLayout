@@ -25,7 +25,6 @@ fun GravitySensor(
             override fun onSensorChanged(event: SensorEvent) {
                 val (x, y, z) = event.values
                 onGravityChanged(listOf(x,y,z))
-                Log.d("asdf", "$x $y $z")
             }
 
             override fun onAccuracyChanged(p0: Sensor?, p1: Int) {

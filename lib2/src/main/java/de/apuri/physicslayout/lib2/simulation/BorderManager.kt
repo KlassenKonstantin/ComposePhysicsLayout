@@ -3,7 +3,7 @@ package de.apuri.physicslayout.lib2.simulation
 import org.dyn4j.geometry.MassType
 import org.dyn4j.world.World
 
-internal class BorderHolder(
+internal class BorderManager(
     private val world: World<SimulationEntity<*>>,
 ) {
     private var currentBorder: SimulationBorder? = null

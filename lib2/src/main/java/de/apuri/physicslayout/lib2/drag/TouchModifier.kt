@@ -1,6 +1,5 @@
 package de.apuri.physicslayout.lib2.drag
 
-import android.util.Log
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.ui.Modifier

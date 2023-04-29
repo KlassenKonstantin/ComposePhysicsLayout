@@ -1,6 +1,5 @@
 package de.apuri.physicslayout.lib2.simulation
 
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,8 +12,6 @@ import de.apuri.physicslayout.lib2.drag.DefaultDragHandler
 import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.drag.TouchType
 import de.apuri.physicslayout.lib2.rememberClock
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import org.dyn4j.geometry.Rotation
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
@@ -26,8 +23,8 @@ class Simulation internal constructor(
 
     internal val transformations = mutableStateMapOf<String, SimulationTransformation>()
 
-    private val bodyHolder = BodyHolder(world)
-    private val borderHolder = BorderHolder(world)
+    private val bodyManager = BodyManager(world)
+    private val borderManager = BorderManager(world)
     private val dragHandler = DefaultDragHandler(world)
 
     fun setGravity(offset: Offset) {
@@ -35,16 +32,6 @@ class Simulation internal constructor(
     }
 
     suspend fun run() {
-//        var last = System.nanoTime()
-//        while (true) {
-//            val now = System.nanoTime()
-//            val elapsed = (now - last).toDouble() / 1.0e9
-//            last = now
-//
-//
-//
-//            delay(1)
-//        }
         clock.frames.collect { elapsed ->
             world.update(elapsed)
             updateTransformations()
@@ -52,7 +39,7 @@ class Simulation internal constructor(
     }
 
     private fun updateTransformations() {
-        bodyHolder.bodies.mapValues {
+        bodyManager.bodies.mapValues {
             it.value.getTransformation()
         }.also {
             transformations.putAll(it)
@@ -60,25 +47,25 @@ class Simulation internal constructor(
     }
 
     internal fun syncSimulationBorder(simulationBorder: SimulationBorder) {
-        borderHolder.syncBorder(simulationBorder)
+        borderManager.syncBorder(simulationBorder)
     }
 
     internal fun syncSimulationBody(id: String, body: SimulationBody?) {
         if (body == null) {
-            bodyHolder.removeBody(id)
+            bodyManager.removeBody(id)
         } else {
-            bodyHolder.syncBody(id, body)
+            bodyManager.syncBody(id, body)
         }
     }
 
     internal fun drag(bodyId: String, touchEvent: SimulationTouchEvent, dragConfig: DragConfig) {
-        bodyHolder.bodies[bodyId]?.let {
+        bodyManager.bodies[bodyId]?.let {
             dragHandler.drag(it, touchEvent, dragConfig)
         }
     }
 
     fun resetBody(bodyId: String, pos: Vector2) {
-        bodyHolder.bodies[bodyId]?.let {
+        bodyManager.bodies[bodyId]?.let {
             it.translateToOrigin()
             it.translate(pos)
             it.transform.setRotation(Rotation.rotation0())
