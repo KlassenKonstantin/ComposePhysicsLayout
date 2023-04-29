@@ -19,8 +19,6 @@ internal class BodyHolder(
     fun syncBody(id: String, body: SimulationBody) {
         bodies.getOrPut(id) {
             Body().apply {
-                gravityScale = 10.0
-                isAtRestDetectionEnabled = false
                 translate(body.initialOffset)
                 world.addBody(this)
             }

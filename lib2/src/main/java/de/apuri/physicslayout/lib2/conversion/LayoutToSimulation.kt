@@ -6,7 +6,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -70,6 +73,8 @@ internal class LayoutToSimulation(
             (ly * bhh - ly * -bhh + bh * -bhh) / bh + lh / 2
         )
 
+        Log.d("asdf", "${positionFromCenter}")
+
         return SimulationBody(
             width = lw.toSimulationSize(),
             height = lh.toSimulationSize(),
@@ -97,7 +102,7 @@ internal class LayoutToSimulation(
 
     private fun Float.toSimulationSize() = this / scale
 
-    private fun Offset.toSimulationVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
+    fun Offset.toSimulationVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
 
     private fun List<Offset>.toVector2() = map {
         it.toSimulationVector2()

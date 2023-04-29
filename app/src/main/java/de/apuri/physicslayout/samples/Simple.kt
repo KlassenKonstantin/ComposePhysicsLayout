@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.layout
@@ -75,8 +76,8 @@ fun SimpleScreen() {
                     shape = RectangleShape,
                 ) {
                     val sim = LocalSimulation.current
-                    GravitySensor {
-                        sim.setGravity(it.copy(x = -it.x))
+                    GravitySensor { (x, y) ->
+                        sim.setGravity(Offset(-x, y).times(3f))
                     }
                     Row(
                         Modifier.fillMaxSize()
@@ -195,7 +196,7 @@ fun Ball(
 ) {
     Box(
         modifier = Modifier
-            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig, DragConfig())
+            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig, DragConfig(), false)
             .size(32.dp)
             .background(color, CircleShape)
     )

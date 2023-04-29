@@ -8,16 +8,20 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import de.apuri.physicslayout.lib2.BodyConfig
+import de.apuri.physicslayout.lib2.Clock
 import de.apuri.physicslayout.lib2.drag.DefaultDragHandler
 import de.apuri.physicslayout.lib2.drag.DragConfig
-import de.apuri.physicslayout.lib2.drag.DragHandler
 import de.apuri.physicslayout.lib2.drag.TouchType
+import de.apuri.physicslayout.lib2.rememberClock
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import org.dyn4j.geometry.Rotation
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
 class Simulation internal constructor(
     private val world: World<SimulationEntity<*>>,
+    private val clock: Clock,
 ) {
 
     internal val transformations = mutableStateMapOf<String, SimulationTransformation>()
@@ -31,17 +35,19 @@ class Simulation internal constructor(
     }
 
     suspend fun run() {
-        var last = System.nanoTime()
-        while (true) {
-            val now = System.nanoTime()
-            val elapsed = (now - last).toDouble() / 1.0e9
-            last = now
-
+//        var last = System.nanoTime()
+//        while (true) {
+//            val now = System.nanoTime()
+//            val elapsed = (now - last).toDouble() / 1.0e9
+//            last = now
+//
+//
+//
+//            delay(1)
+//        }
+        clock.frames.collect { elapsed ->
             world.update(elapsed)
-
             updateTransformations()
-
-            delay(1)
         }
     }
 
@@ -61,7 +67,6 @@ class Simulation internal constructor(
         if (body == null) {
             bodyHolder.removeBody(id)
         } else {
-            Log.d("asdf", "SYNC $body")
             bodyHolder.syncBody(id, body)
         }
     }
@@ -71,13 +76,20 @@ class Simulation internal constructor(
             dragHandler.drag(it, touchEvent, dragConfig)
         }
     }
+
+    fun resetBody(bodyId: String, pos: Vector2) {
+        bodyHolder.bodies[bodyId]?.let {
+            it.translateToOrigin()
+            it.translate(pos)
+            it.transform.setRotation(Rotation.rotation0())
+        }
+    }
 }
 
 @Composable
-fun rememberSimulation(): Simulation {
-    val simulation = remember {
-        // Add clock as parameter
-        Simulation(createDefaultWorld())
+fun rememberSimulation(clock: Clock = rememberClock()): Simulation {
+    val simulation = remember(clock) {
+        Simulation(createDefaultWorld(), clock)
     }
 
     LaunchedEffect(simulation) {
@@ -91,7 +103,10 @@ private const val EARTH_GRAVITY = 9.81
 
 private fun createDefaultWorld() = World<SimulationEntity<*>>().apply {
     gravity = Vector2(0.0, EARTH_GRAVITY)
-    settings.stepFrequency = 1.0 / 90
+    settings.apply {
+        isAtRestDetectionEnabled = false
+        stepFrequency = 1.0 / 180
+    }
 }
 
 internal data class SimulationBorder(

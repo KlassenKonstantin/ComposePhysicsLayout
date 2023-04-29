@@ -26,4 +26,4 @@ data class DragConfig(
 
 const val DEF_FREQUENCY = 15.0
 const val DEF_DAMPING_RATIO = 0.3
-const val DEF_MAX_FORCE = 700.0 * 5
+const val DEF_MAX_FORCE = 10_000.0

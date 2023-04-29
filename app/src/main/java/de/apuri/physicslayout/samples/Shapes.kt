@@ -51,8 +51,8 @@ fun ShapesScreen() {
         color = MaterialTheme.colorScheme.background
     ) {
         var gravity by remember { mutableStateOf(Offset.Zero) }
-        GravitySensor {
-            gravity = it.copy(x = -it.x).times(3f)
+        GravitySensor { (x, y) ->
+            gravity = Offset(-x, y).times(3f)
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically)

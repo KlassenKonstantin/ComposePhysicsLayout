@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
@@ -83,8 +84,8 @@ fun StarLauncherScreen() {
             derivedStateOf { stars.count { it.color == green } }
         }
 
-        GravitySensor {
-            simulation.setGravity(it.copy(x = -it.x).times(3f))
+        GravitySensor { (x, y) ->
+            simulation.setGravity(Offset(-x, y).times(3f))
         }
 
         Box {

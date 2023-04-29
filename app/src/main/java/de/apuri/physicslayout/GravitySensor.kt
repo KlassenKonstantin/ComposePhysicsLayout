@@ -4,6 +4,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.geometry.Offset
@@ -12,7 +13,7 @@ import androidx.core.content.getSystemService
 
 @Composable
 fun GravitySensor(
-    onGravityChanged: (Offset) -> Unit
+    onGravityChanged: (List<Float>) -> Unit
 ) {
     val context = LocalContext.current
     DisposableEffect(Unit) {
@@ -22,8 +23,9 @@ fun GravitySensor(
 
         val gravityListener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
-                val (x, y) = event.values
-                onGravityChanged(Offset(x, y))
+                val (x, y, z) = event.values
+                onGravityChanged(listOf(x,y,z))
+                Log.d("asdf", "$x $y $z")
             }
 
             override fun onAccuracyChanged(p0: Sensor?, p1: Int) {
