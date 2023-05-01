@@ -57,92 +57,92 @@ val color = Color(0xFF009688)
 
 @Composable
 fun Paywall() {
-    Surface(
-        modifier = Modifier
-            .systemBarsPadding()
-            .fillMaxSize(),
-        color = color
-    ) {
-        val clock = rememberClock(autoStart = false)
-        val sim = rememberSimulation(clock)
-        var currentGravity by remember { mutableStateOf(Offset(9.2f, 3.4f)) }
-        val docked by remember {
-            derivedStateOf {
-                (currentGravity.x - 9.2f).absoluteValue < 0.2f
-            }
-        }
-
-        LaunchedEffect(docked) {
-            if (!docked) {
-                Log.d("gaga", "run")
-                clock.start()
-            } else {
-                delay(300)
-                Log.d("gaga", "pause")
-                clock.stop()
-            }
-        }
-
-        Box {
-            PhysicsLayout(
-                modifier = Modifier.align(Alignment.BottomCenter).fillMaxHeight(0.7f).clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(Color.White),
-                simulation = sim
-            ) {
-                val sim = LocalSimulation.current
-                GravitySensor {(x, y, z) ->
-                    currentGravity = Offset(y, z)
-                    sim.setGravity(Offset(-x, y))
-                }
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Box(
-                        Modifier.padding(32.dp)
-                    ) {
-                        Text(text = "Product Pro", style = MaterialTheme.typography.headlineMedium, modifier = Modifier
-                            .physicsBody(dragConfig = DragConfig(), docked = docked)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-
-                    FeatureItem("Lorem ipsum", docked)
-                    FeatureItem("Dolor", docked)
-                    FeatureItem("Sit amet", docked)
-                    FeatureItem("At vero eos et accusam", docked)
-                    FeatureItem("Magna aliquyam erat", docked)
-
-                    Spacer(modifier = Modifier.height(36.dp))
-
-                    Row(
-                        modifier = Modifier.padding(horizontal = 48.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Selector(text = "Free", price = "$0.00", selected = true, docked)
-                        Selector(text = "Basic", price = "$9.99", selected = false, docked)
-                        Selector(text = "Pro", price = "$19.99", selected = false, docked)
-                    }
-
-                    Spacer(modifier = Modifier.weight(1f))
-
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp)) {
-                        Button(
-                            modifier = Modifier
-                                .physicsBody(dragConfig = DragConfig(), docked = docked)
-                                .fillMaxWidth(),
-                            colors = ButtonDefaults.buttonColors(containerColor = color),
-                            onClick = { /*TODO*/ }
-                        ) {
-                            Text(text = "Purchase")
-                        }
-                    }
-                }
-            }
-        }
-    }
+//    Surface(
+//        modifier = Modifier
+//            .systemBarsPadding()
+//            .fillMaxSize(),
+//        color = color
+//    ) {
+//        val clock = rememberClock(autoStart = false)
+//        val sim = rememberSimulation(clock)
+//        var currentGravity by remember { mutableStateOf(Offset(9.2f, 3.4f)) }
+//        val docked by remember {
+//            derivedStateOf {
+//                (currentGravity.x - 9.2f).absoluteValue < 0.2f
+//            }
+//        }
+//
+//        LaunchedEffect(docked) {
+//            if (!docked) {
+//                Log.d("gaga", "run")
+//                clock.start()
+//            } else {
+//                delay(300)
+//                Log.d("gaga", "pause")
+//                clock.stop()
+//            }
+//        }
+//
+//        Box {
+//            PhysicsLayout(
+//                modifier = Modifier.align(Alignment.BottomCenter).fillMaxHeight(0.7f).clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)).background(Color.White),
+//                simulation = sim
+//            ) {
+//                val sim = LocalSimulation.current
+//                GravitySensor {(x, y, z) ->
+//                    currentGravity = Offset(y, z)
+//                    sim.setGravity(Offset(-x, y))
+//                }
+//                Column(
+//                    modifier = Modifier.fillMaxSize(),
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Box(
+//                        Modifier.padding(32.dp)
+//                    ) {
+//                        Text(text = "Product Pro", style = MaterialTheme.typography.headlineMedium, modifier = Modifier
+//                            .physicsBody(dragConfig = DragConfig())
+//                        )
+//                    }
+//
+//                    Spacer(modifier = Modifier.height(32.dp))
+//
+//                    FeatureItem("Lorem ipsum", docked)
+//                    FeatureItem("Dolor", docked)
+//                    FeatureItem("Sit amet", docked)
+//                    FeatureItem("At vero eos et accusam", docked)
+//                    FeatureItem("Magna aliquyam erat", docked)
+//
+//                    Spacer(modifier = Modifier.height(36.dp))
+//
+//                    Row(
+//                        modifier = Modifier.padding(horizontal = 48.dp),
+//                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+//                    ) {
+//                        Selector(text = "Free", price = "$0.00", selected = true, docked)
+//                        Selector(text = "Basic", price = "$9.99", selected = false, docked)
+//                        Selector(text = "Pro", price = "$19.99", selected = false, docked)
+//                    }
+//
+//                    Spacer(modifier = Modifier.weight(1f))
+//
+//                    Box(modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(32.dp)) {
+//                        Button(
+//                            modifier = Modifier
+//                                .physicsBody(dragConfig = DragConfig())
+//                                .fillMaxWidth(),
+//                            colors = ButtonDefaults.buttonColors(containerColor = color),
+//                            onClick = { /*TODO*/ }
+//                        ) {
+//                            Text(text = "Purchase")
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -157,8 +157,7 @@ fun RowScope.Selector(text: String, price: String, selected: Boolean, docked: Bo
         modifier = Modifier
             .physicsBody(
                 shape = RoundedCornerShape(12.dp),
-                dragConfig = DragConfig(),
-                docked = docked
+                dragConfig = DragConfig()
             )
             .weight(1f),
         border = borderStroke,
@@ -186,11 +185,11 @@ fun FeatureItem(text: String, docked: Boolean) {
         Box(
             Modifier.weight(1f)
         ) {
-            Text(text = text, modifier = Modifier.physicsBody(dragConfig = DragConfig(), docked = docked), style = MaterialTheme.typography.bodyLarge)
+            Text(text = text, modifier = Modifier.physicsBody(dragConfig = DragConfig()), style = MaterialTheme.typography.bodyLarge)
         }
         Box(
             Modifier
-                .physicsBody(shape = CircleShape, dragConfig = DragConfig(), docked = docked)
+                .physicsBody(shape = CircleShape, dragConfig = DragConfig())
                 .size(24.dp)
                 .background(color, CircleShape),
             contentAlignment = Alignment.Center

@@ -6,15 +6,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInParent
-import androidx.compose.ui.layout.positionInRoot
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import de.apuri.physicslayout.lib2.BodyConfig
-import de.apuri.physicslayout.lib2.TAG
 import de.apuri.physicslayout.lib2.drag.LayoutTouchEvent
 import de.apuri.physicslayout.lib2.isCircle
 import de.apuri.physicslayout.lib2.isRectangle
@@ -73,8 +69,6 @@ internal class LayoutToSimulation(
             (ly * bhh - ly * -bhh + bh * -bhh) / bh + lh / 2
         )
 
-        Log.d("asdf", "${positionFromCenter}")
-
         return SimulationBody(
             width = lw.toSimulationSize(),
             height = lh.toSimulationSize(),
@@ -94,15 +88,13 @@ internal class LayoutToSimulation(
         width = size.width.toSimulationSize(),
         height = size.height.toSimulationSize(),
         shape = shape.toSimulationShape(size)
-    ).also {
-        Log.d(TAG, "New border: $it")
-    }
+    )
 
     private fun Int.toSimulationSize() = this / scale
 
     private fun Float.toSimulationSize() = this / scale
 
-    fun Offset.toSimulationVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
+    private fun Offset.toSimulationVector2() = Vector2(x.toDouble(), y.toDouble()).divide(scale)
 
     private fun List<Offset>.toVector2() = map {
         it.toSimulationVector2()

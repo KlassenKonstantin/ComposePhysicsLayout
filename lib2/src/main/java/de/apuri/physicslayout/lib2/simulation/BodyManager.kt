@@ -8,14 +8,22 @@ internal class BodyManager(
 ) {
     val bodies: MutableMap<String, Body> = mutableMapOf()
 
-    fun removeBody(id: String) {
+    fun syncBody(id: String, body: SimulationBody?) {
+        if (body == null) {
+            removeBody(id)
+        } else {
+            upsertBody(id, body)
+        }
+    }
+
+    private fun removeBody(id: String) {
         bodies[id]?.let {
             world.removeBody(it)
         }
         bodies.remove(id)
     }
 
-    fun syncBody(id: String, body: SimulationBody) {
+    private fun upsertBody(id: String, body: SimulationBody) {
         bodies.getOrPut(id) {
             Body().apply {
                 translate(body.initialOffset)

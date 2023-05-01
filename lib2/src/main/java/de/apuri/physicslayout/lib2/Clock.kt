@@ -24,10 +24,10 @@ class Clock internal constructor(
     private var job: Job? = null
 
     init {
-        if (autoStart) start()
+        if (autoStart) resume()
     }
 
-    fun start() {
+    fun resume() {
         if (job != null) return
 
         job = scope.launch {
@@ -42,7 +42,7 @@ class Clock internal constructor(
         }
     }
 
-    fun stop() {
+    fun pause() {
         job?.cancel()
         job = null
     }

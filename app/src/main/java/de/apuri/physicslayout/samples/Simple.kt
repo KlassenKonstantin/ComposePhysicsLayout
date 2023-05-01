@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -28,14 +29,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.lib2.BodyConfig
-import de.apuri.physicslayout.lib2.LocalSimulation
 import de.apuri.physicslayout.lib2.PhysicsLayout
 import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.physicsBody
+import de.apuri.physicslayout.lib2.rememberClock
+import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 
 val colors = listOf(
     Color.Red,
@@ -48,8 +49,8 @@ val colors = listOf(
 val shapes = listOf(
     RectangleShape,
     CircleShape,
-    RoundedCornerShape(32.dp),
-    CutCornerShape(16.dp),
+//    RoundedCornerShape(32.dp),
+//    CutCornerShape(16.dp),
 )
 
 @Composable
@@ -61,6 +62,10 @@ fun SimpleScreen() {
         var sliderDensity by remember { mutableStateOf(0.5f) }
         var sliderFriction by remember { mutableStateOf(0f) }
         var sliderRestitution by remember { mutableStateOf(0f) }
+        var currentBorderIndex by remember { mutableStateOf(0) }
+
+        val clock = rememberClock()
+        val simulation = rememberSimulation(clock)
 
         Column(
             Modifier.systemBarsPadding()
@@ -73,11 +78,11 @@ fun SimpleScreen() {
                     Modifier
                         .fillMaxSize()
                         .background(Color.DarkGray),
-                    shape = RectangleShape,
+                    shape = shapes[currentBorderIndex],
+                    simulation = simulation
                 ) {
-                    val sim = LocalSimulation.current
                     GravitySensor { (x, y) ->
-                        sim.setGravity(Offset(-x, y).times(3f))
+                        simulation.setGravity(Offset(-x, y).times(3f))
                     }
                     Row(
                         Modifier.fillMaxSize()
@@ -160,31 +165,19 @@ fun SimpleScreen() {
                         valueRange = 0f..1f
                     )
                 }
+                Row {
+                    Button(onClick = { clock.pause() }) {
+                        Text(text = "Pause")
+                    }
+                    Button(onClick = { clock.resume() }) {
+                        Text(text = "Resume")
+                    }
+                    Button(onClick = { currentBorderIndex = (++currentBorderIndex).mod(shapes.size) }) {
+                        Text(text = "Toggle border")
+                    }
+                }
             }
         }
-
-//        Row(
-//            Modifier
-//                .systemBarsPadding()
-//                .fillMaxSize(),
-//            horizontalArrangement = Arrangement.Center
-//        ) {
-//            Box(
-//                Modifier
-//                    .fillMaxHeight()
-//                    .width((1f / LocalDensity.current.density).dp)
-//                    .background(color = DividerDefaults.color)
-//            )
-//        }
-//
-//        Column(
-//            Modifier
-//                .systemBarsPadding()
-//                .fillMaxSize(),
-//            verticalArrangement = Arrangement.Center
-//        ) {
-//            Divider(thickness = (1f / LocalDensity.current.density).dp)
-//        }
     }
 }
 
@@ -196,14 +189,8 @@ fun Ball(
 ) {
     Box(
         modifier = Modifier
-            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig, DragConfig(), false)
+            .physicsBody(id = id, shape = CircleShape, bodyConfig = bodyConfig, DragConfig())
             .size(32.dp)
             .background(color, CircleShape)
     )
 }
-
-//                                        Color.hsv(
-//                                            (((col + 1) * (row + 1)) / (7f * 7f)) * 360,
-//                                            1f,
-//                                            1f
-//                                        )

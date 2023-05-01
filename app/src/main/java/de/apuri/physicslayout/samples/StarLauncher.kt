@@ -14,6 +14,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,13 +49,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
-import de.apuri.physicslayout.lib.drag.DragConfig
-import de.apuri.physicslayout.lib.PhysicsLayout
-import de.apuri.physicslayout.lib.PhysicsLayoutScope
-import de.apuri.physicslayout.lib.rememberSimulation
+import de.apuri.physicslayout.lib2.BodyConfig
+import de.apuri.physicslayout.lib2.PhysicsLayout
+import de.apuri.physicslayout.lib2.drag.DragConfig
+import de.apuri.physicslayout.lib2.physicsBody
+import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -88,96 +89,86 @@ fun StarLauncherScreen() {
             simulation.setGravity(Offset(-x, y).times(3f))
         }
 
-        Box {
-            PhysicsLayout(
-                modifier = Modifier.systemBarsPadding(),
-                onBodiesAdded = { allBodies, addedBodies ->
-//                                val stars = allBodies.filter { it.id.startsWith("star") }
-//                                if (stars.size > 1) {
-//                                    simulation.addJoint(
-//                                        Joint.DistanceJoint(
-//                                            stars[stars.size - 2].id,
-//                                            addedBodies.first().id,
-//                                            lowerLimit = 48.dp,
-//                                            upperLimit = 96.dp
-//                                        )
-//                                    )
-//                                }
-                },
-                simulation = simulation
-            ) {
-                stars.forEach { starMeta ->
+        PhysicsLayout(
+            modifier = Modifier.systemBarsPadding(),
+            simulation = simulation
+        ) {
+            stars.forEach { starMeta ->
+                key(starMeta.id) {
                     Star(
                         id = starMeta.id,
                         color = starMeta.color,
-                        offset = starMeta.initialOffset
                     ) { id ->
                         stars.removeIf { it.id == id }
                     }
                 }
+            }
 
-                StarCounterContainer(
-                    { redCount.value },
-                    { purpleCount.value },
-                    { blueCount.value },
-                    { greenCount.value },
-                )
+            StarCounterContainer(
+                { redCount.value },
+                { purpleCount.value },
+                { blueCount.value },
+                { greenCount.value },
+            )
 
-                val launchOffset = DpOffset(0.dp, -300.dp)
-
-                StarLauncher(
-                    color = red,
-                    offset = DpOffset(-120.dp, 225.dp)
-                ) {
-                    stars.add(StarMeta("star-${starCounter++}", red, launchOffset))
-                }
-
-                StarLauncher(
-                    color = purple,
-                    offset = DpOffset(0.dp, 300.dp)
-                ) {
-                    stars.add(StarMeta("star-${starCounter++}", purple, launchOffset))
-                }
-
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(32.dp, Alignment.Bottom)
+            ) {
                 StarLauncher(
                     color = blue,
-                    offset = DpOffset(120.dp, 225.dp)
                 ) {
-                    stars.add(StarMeta("star-${starCounter++}", blue, launchOffset))
+                    stars.add(StarMeta("star-${starCounter++}", blue))
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(64.dp)
+                ) {
+                    StarLauncher(
+                        color = red,
+                    ) {
+                        stars.add(StarMeta("star-${starCounter++}", red))
+                    }
+
+                    StarLauncher(
+                        color = purple,
+                    ) {
+                        stars.add(StarMeta("star-${starCounter++}", purple))
+                    }
                 }
 
                 StarLauncher(
                     color = green,
-                    offset = DpOffset(0.dp, 150.dp)
                 ) {
-                    stars.add(StarMeta("star-${starCounter++}", green, launchOffset))
+                    stars.add(StarMeta("star-${starCounter++}", green))
                 }
             }
         }
+
     }
 }
 
 @Composable
-fun PhysicsLayoutScope.StarLauncher(
+fun StarLauncher(
     color: Color,
-    offset: DpOffset,
-    onStar: (DpOffset) -> Unit
+    onStar: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     Card(
         modifier = Modifier
-            .size(64.dp)
-            .body(
+            .physicsBody(
                 shape = CircleShape,
-                isStatic = true,
-                initialTranslation = offset,
+                bodyConfig = BodyConfig(isStatic = true)
             )
             .pointerInput(Unit) {
                 detectTapGestures(
                     onPress = {
                         val job = scope.launch {
                             while (true) {
-                                onStar(offset)
+                                onStar()
                                 delay(100)
                             }
                         }
@@ -190,7 +181,7 @@ fun PhysicsLayoutScope.StarLauncher(
         colors = CardDefaults.cardColors(containerColor = color)
     ) {
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.size(64.dp)
         ) {
             Icon(
                 modifier = Modifier.align(Alignment.Center),
@@ -202,25 +193,26 @@ fun PhysicsLayoutScope.StarLauncher(
 }
 
 @Composable
-fun PhysicsLayoutScope.StarCounterContainer(
+fun BoxScope.StarCounterContainer(
     provideRedCount: () -> Int,
     providePurpleCount: () -> Int,
     provideBlueCount: () -> Int,
     provideGreenCount: () -> Int,
 ) {
-    var dragConfig by remember { mutableStateOf<DragConfig>(DragConfig.NotDraggable) }
+    var dragConfig by remember { mutableStateOf<DragConfig?>(null) }
 
     Card(
         modifier = Modifier
-            .body(
+            .align(Alignment.Center)
+            .physicsBody(
                 shape = RoundedCornerShape(16.dp),
-                isStatic = dragConfig is DragConfig.NotDraggable,
+                bodyConfig = BodyConfig(isStatic = dragConfig == null),
                 dragConfig = dragConfig,
             )
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     awaitFirstDown()
-                    dragConfig = DragConfig.Draggable()
+                    dragConfig = DragConfig()
                 }
             },
         shape = RoundedCornerShape(16.dp),
@@ -284,20 +276,23 @@ fun StarCounter(color: Color, provideCount: () -> Int) {
 }
 
 @Composable
-fun PhysicsLayoutScope.Star(
+fun BoxScope.Star(
     id: String,
     color: Color,
-    offset: DpOffset,
     onClick: (String) -> Unit
 ) {
-    key(id) {
+    Box(
+        Modifier
+            .align(Alignment.TopCenter)
+            .padding(top = 32.dp)
+    ) {
         Card(
-            modifier = Modifier.body(
-                id = id,
-                shape = CircleShape,
-                initialTranslation = offset,
-                dragConfig = DragConfig.Draggable()
-            ),
+            modifier = Modifier
+                .physicsBody(
+                    id = id,
+                    shape = CircleShape,
+                    dragConfig = DragConfig()
+                ),
             shape = CircleShape,
             colors = CardDefaults.cardColors(containerColor = color),
             onClick = { onClick(id) }
@@ -312,13 +307,13 @@ fun PhysicsLayoutScope.Star(
             )
         }
     }
+
 }
 
 @Immutable
 data class StarMeta(
     val id: String,
     val color: Color,
-    val initialOffset: DpOffset
 )
 
 private val red = Color(0xFFEF5350)

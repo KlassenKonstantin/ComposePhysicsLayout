@@ -51,24 +51,12 @@ class Simulation internal constructor(
     }
 
     internal fun syncSimulationBody(id: String, body: SimulationBody?) {
-        if (body == null) {
-            bodyManager.removeBody(id)
-        } else {
-            bodyManager.syncBody(id, body)
-        }
+        bodyManager.syncBody(id, body)
     }
 
     internal fun drag(bodyId: String, touchEvent: SimulationTouchEvent, dragConfig: DragConfig) {
         bodyManager.bodies[bodyId]?.let {
             dragHandler.drag(it, touchEvent, dragConfig)
-        }
-    }
-
-    fun resetBody(bodyId: String, pos: Vector2) {
-        bodyManager.bodies[bodyId]?.let {
-            it.translateToOrigin()
-            it.translate(pos)
-            it.transform.setRotation(Rotation.rotation0())
         }
     }
 }

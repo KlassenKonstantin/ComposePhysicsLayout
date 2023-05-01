@@ -10,7 +10,6 @@ import de.apuri.physicslayout.lib.shape.toCircleShape
 import de.apuri.physicslayout.lib.shape.toGenericShape
 import de.apuri.physicslayout.lib.shape.toRectangleShape
 
-//Todo naming, might be used for bodies and layouts
 internal data class LayoutShape(
     override val width: Int,
     override val height: Int,

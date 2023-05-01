@@ -6,7 +6,6 @@ import de.apuri.physicslayout.lib2.LayoutTransformation
 import de.apuri.physicslayout.lib2.simulation.SimulationTransformation
 
 internal class SimulationToLayout(
-    private val density: Density,
     private val scale: Double
 ) {
     private fun Double.toLayoutSize() = (this * scale).toFloat()

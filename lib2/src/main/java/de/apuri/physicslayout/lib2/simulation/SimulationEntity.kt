@@ -29,7 +29,6 @@ internal sealed class SimulationEntity<T> : LibBody() {
                         new.bodyConfig.restitution.toDouble(),
                     )
                 }
-                setMass(if (new.bodyConfig.isStatic) MassType.INFINITE else MassType.NORMAL)
             } else if (new.bodyConfig != current.bodyConfig) {
                 fixtures.forEach {
                     it.density = new.bodyConfig.density.toDouble()
@@ -37,6 +36,8 @@ internal sealed class SimulationEntity<T> : LibBody() {
                     it.restitution = new.bodyConfig.restitution.toDouble()
                 }
             }
+
+            setMass(if (new.bodyConfig.isStatic) MassType.INFINITE else MassType.NORMAL)
         }
     }
 
