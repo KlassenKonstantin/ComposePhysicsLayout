@@ -2,6 +2,7 @@ package de.apuri.physicslayout.lib2
 
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -11,10 +12,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onPlaced
+import de.apuri.physicslayout.lib2.conversion.LocalLayoutToSimulation
+import de.apuri.physicslayout.lib2.conversion.LocalSimulationToLayout
 import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.drag.touch
 import java.util.UUID
 
+@Stable
 fun Modifier.physicsBody(
     id: String? = null,
     shape: Shape = RectangleShape,

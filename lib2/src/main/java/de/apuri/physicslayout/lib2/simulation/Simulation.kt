@@ -3,24 +3,22 @@ package de.apuri.physicslayout.lib2.simulation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import de.apuri.physicslayout.lib2.BodyConfig
-import de.apuri.physicslayout.lib2.Clock
 import de.apuri.physicslayout.lib2.drag.DefaultDragHandler
 import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.drag.TouchType
-import de.apuri.physicslayout.lib2.rememberClock
-import org.dyn4j.geometry.Rotation
 import org.dyn4j.geometry.Vector2
 import org.dyn4j.world.World
 
+@Stable
 class Simulation internal constructor(
     private val world: World<SimulationEntity<*>>,
     private val clock: Clock,
 ) {
-
     internal val transformations = mutableStateMapOf<String, SimulationTransformation>()
 
     private val bodyManager = BodyManager(world)
@@ -31,7 +29,7 @@ class Simulation internal constructor(
         world.gravity = Vector2(offset.x.toDouble(), offset.y.toDouble())
     }
 
-    suspend fun run() {
+    internal suspend fun run() {
         clock.frames.collect { elapsed ->
             world.update(elapsed)
             updateTransformations()

@@ -1,4 +1,4 @@
-package de.apuri.physicslayout.lib2
+package de.apuri.physicslayout.lib2.simulation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember

@@ -1,5 +1,4 @@
 package de.apuri.physicslayout.lib2.simulation
-import android.util.Log
 import org.dyn4j.geometry.MassType
 import org.dyn4j.dynamics.Body as LibBody
 

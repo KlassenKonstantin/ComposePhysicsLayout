@@ -91,7 +91,8 @@ fun StarLauncherScreen() {
 
         PhysicsLayout(
             modifier = Modifier.systemBarsPadding(),
-            simulation = simulation
+            simulation = simulation,
+            shape = RoundedCornerShape(64.dp)
         ) {
             stars.forEach { starMeta ->
                 key(starMeta.id) {

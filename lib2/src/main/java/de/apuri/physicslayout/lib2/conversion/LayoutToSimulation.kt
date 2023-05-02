@@ -1,7 +1,9 @@
 package de.apuri.physicslayout.lib2.conversion
 
-import android.util.Log
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Shape
@@ -24,19 +26,21 @@ import de.apuri.physicslayout.lib2.toPoints
 import de.apuri.physicslayout.lib2.toRadius
 import org.dyn4j.geometry.Vector2
 
-private const val PATH_SEGMENTS = 1001
+private const val PATH_SEGMENTS = 100
 
+@Stable
 internal class LayoutToSimulation(
     private val density: Density,
-    private val scale: Double
+    private val scale: Double,
 ) {
-    lateinit var containerLayoutCoordinates: LayoutCoordinates
+
+    var containerLayoutCoordinates = mutableStateOf<LayoutCoordinates?>(null)
 
     fun convertBody(
         coordinates: LayoutCoordinates,
         shape: Shape,
         bodyConfig: BodyConfig
-    ): Pair<SimulationBody, Offset> {
+    ): Pair<SimulationBody, Offset> = containerLayoutCoordinates.value?.let { containerLayoutCoordinates ->
         /**
          * Width and height of the composable
          */
@@ -69,14 +73,14 @@ internal class LayoutToSimulation(
             (ly * bhh - ly * -bhh + bh * -bhh) / bh + lh / 2
         )
 
-        return SimulationBody(
+        SimulationBody(
             width = lw.toSimulationSize(),
             height = lh.toSimulationSize(),
-            shape = shape.toSimulationShape(coordinates.size)!!,
+            shape = shape.toSimulationBodyShape(coordinates.size)!!,
             initialOffset = positionFromCenter.toSimulationVector2(),
             bodyConfig = bodyConfig,
         ) to positionFromCenter
-    }
+    } ?: throw IllegalStateException()
 
     fun convertTouchEvent(touchEvent: LayoutTouchEvent) = SimulationTouchEvent(
         pointerId = touchEvent.pointerId,
@@ -87,7 +91,7 @@ internal class LayoutToSimulation(
     fun convertBorder(size: IntSize, shape: Shape?) = SimulationBorder(
         width = size.width.toSimulationSize(),
         height = size.height.toSimulationSize(),
-        shape = shape.toSimulationShape(size)
+        shape = shape.toSimulationBorderShape(size)
     )
 
     private fun Int.toSimulationSize() = this / scale
@@ -100,7 +104,7 @@ internal class LayoutToSimulation(
         it.toSimulationVector2()
     }
 
-    private fun Shape?.toSimulationShape(size: IntSize) = when {
+    private fun Shape?.toSimulationBodyShape(size: IntSize) = when {
         this == null -> null
         !isSupported() -> throw IllegalArgumentException("${this::class.simpleName} is not supported")
         isCircle() -> SimulationShape.Circle(size.width.toSimulationSize() / 2)
@@ -128,4 +132,27 @@ internal class LayoutToSimulation(
             ).toVector2()
         )
     }
+
+    private fun Shape?.toSimulationBorderShape(size: IntSize) = when {
+        this == null -> null
+        !isSupported() -> throw IllegalArgumentException("${this::class.simpleName} is not supported")
+        isCircle() -> SimulationShape.Circle(size.width.toSimulationSize() / 2)
+        isRectangle() -> SimulationShape.Rectangle(
+            size.width.toSimulationSize(),
+            size.height.toSimulationSize()
+        )
+
+        else -> SimulationShape.Generic(
+            toPoints(
+                Size(size.width.toFloat(), size.height.toFloat()),
+                LayoutDirection.Ltr,
+                density,
+                PATH_SEGMENTS
+            ).toVector2()
+        )
+    }
+}
+
+internal val LocalLayoutToSimulation = staticCompositionLocalOf<LayoutToSimulation> {
+    throw IllegalStateException("No LayoutToSimulation provided")
 }

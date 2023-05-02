@@ -35,7 +35,7 @@ import de.apuri.physicslayout.lib2.BodyConfig
 import de.apuri.physicslayout.lib2.PhysicsLayout
 import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.physicsBody
-import de.apuri.physicslayout.lib2.rememberClock
+import de.apuri.physicslayout.lib2.simulation.rememberClock
 import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 
 val colors = listOf(
@@ -49,8 +49,8 @@ val colors = listOf(
 val shapes = listOf(
     RectangleShape,
     CircleShape,
-//    RoundedCornerShape(32.dp),
-//    CutCornerShape(16.dp),
+    RoundedCornerShape(64.dp),
+    CutCornerShape(16.dp),
 )
 
 @Composable

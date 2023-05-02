@@ -15,6 +15,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.lib2.conversion.LayoutToSimulation
+import de.apuri.physicslayout.lib2.conversion.LocalLayoutToSimulation
+import de.apuri.physicslayout.lib2.conversion.LocalSimulationToLayout
 import de.apuri.physicslayout.lib2.conversion.SimulationToLayout
 import de.apuri.physicslayout.lib2.simulation.Simulation
 import de.apuri.physicslayout.lib2.simulation.rememberSimulation
@@ -49,7 +51,6 @@ fun PhysicsLayout(
             modifier = modifier.physicsBorder(
                 shape = shape,
                 simulation = simulation,
-                layoutToSimulation = layoutToSimulation
             ),
             content = content,
         )
@@ -58,12 +59,4 @@ fun PhysicsLayout(
 
 val LocalSimulation = staticCompositionLocalOf<Simulation> {
     throw IllegalStateException("No Simulation provided")
-}
-
-internal val LocalLayoutToSimulation = staticCompositionLocalOf<LayoutToSimulation> {
-    throw IllegalStateException("No LayoutToSimulation provided")
-}
-
-internal val LocalSimulationToLayout = staticCompositionLocalOf<SimulationToLayout> {
-    throw IllegalStateException("No LayoutToSimulation provided")
 }

@@ -10,6 +10,7 @@ data class LayoutTouchEvent(
     val type: TouchType,
 )
 
+@Immutable
 enum class TouchType {
     DOWN, MOVE, UP
 }
