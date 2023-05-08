@@ -11,12 +11,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -43,11 +46,11 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
-import de.apuri.physicslayout.lib.PhysicsLayout
-import de.apuri.physicslayout.lib.PhysicsLayoutScope
-import de.apuri.physicslayout.lib.Simulation
-import de.apuri.physicslayout.lib.drag.DragConfig
-import de.apuri.physicslayout.lib.rememberSimulation
+import de.apuri.physicslayout.lib2.PhysicsLayout
+import de.apuri.physicslayout.lib2.simulation.Simulation
+import de.apuri.physicslayout.lib2.drag.DragConfig
+import de.apuri.physicslayout.lib2.physicsBody
+import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
@@ -77,19 +80,15 @@ fun FlyingTabsScreen() {
             "Three",
         )
         Column {
-            Box(
-                Modifier
+            Tabs(
+                modifier = Modifier
                     .height(250.dp)
                     .fillMaxWidth()
-                    .background(Color(0xFF10B981))
-            ) {
-                Tabs(
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    items = tabs,
-                    pagerState = pagerState,
-                    simulation = simulation,
-                )
-            }
+                    .background(Color(0xFF10B981)),
+                items = tabs,
+                pagerState = pagerState,
+                simulation = simulation,
+            )
             HorizontalPager(
                 modifier = Modifier
                     .weight(1f)
@@ -108,7 +107,6 @@ fun FlyingTabsScreen() {
                     val canScrollForward = scrollState.canScrollForward
                     LaunchedEffect(key1 = canScrollForward) {
                         if (!canScrollForward) {
-                            //simulation.applyForce()
                             shakeOffset = DpOffset(0.dp, -20.dp)
                             delay(50)
                             shakeOffset = DpOffset.Zero
@@ -146,17 +144,21 @@ fun Tabs(
         val currentPage = pagerState.currentPage
         val currentPageOffset = pagerState.currentPageOffsetFraction
 
-        items.forEachIndexed { index, label ->
-            val state = when {
-                currentPage == index -> TabState.Selected
-                currentPage - index == 1 && currentPageOffset < 0 -> TabState.Approaching(currentPageOffset.absoluteValue)
-                currentPage - index == -1 && currentPageOffset > 0 -> TabState.Approaching(currentPageOffset.absoluteValue)
-                else -> TabState.Deselected
-            }
+        Row(
+            modifier.wrapContentHeight(align = Alignment.Bottom)
+        ) {
+            items.forEachIndexed { index, label ->
+                val state = when {
+                    currentPage == index -> TabState.Selected
+                    currentPage - index == 1 && currentPageOffset < 0 -> TabState.Approaching(currentPageOffset.absoluteValue)
+                    currentPage - index == -1 && currentPageOffset > 0 -> TabState.Approaching(currentPageOffset.absoluteValue)
+                    else -> TabState.Deselected
+                }
 
-            Tab(label = label, state) {
-                scope.launch {
-                    pagerState.animateScrollToPage(index)
+                Tab(label = label, state) {
+                    scope.launch {
+                        pagerState.animateScrollToPage(index)
+                    }
                 }
             }
         }
@@ -164,16 +166,16 @@ fun Tabs(
 }
 
 @Composable
-fun PhysicsLayoutScope.Tab(
+fun RowScope.Tab(
     label: String,
     state: TabState,
     onClick: () -> Unit
 ) {
     Box(
         Modifier
+            .physicsBody(dragConfig = DragConfig(), shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
             .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-            .body(dragConfig = DragConfig.Draggable(), shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-            .fillMaxWidth(0.329f),
+            .weight(1f),
         contentAlignment = Alignment.Center
     ) {
         val targetValue = when (state) {
@@ -225,7 +227,10 @@ fun PhysicsLayoutScope.Tab(
                     val overshoot = java.lang.Float.max(0f, progress - 1f)
                     scaleY = java.lang.Float.max(1f, 1f + overshoot * 2f)
                 }
-                .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)),
+                .background(
+                    MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
+                ),
             contentAlignment = Alignment.Center,
         ) {
             Text(

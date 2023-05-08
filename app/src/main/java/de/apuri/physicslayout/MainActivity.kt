@@ -19,7 +19,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.apuri.physicslayout.samples.FlyingTabsScreen
-import de.apuri.physicslayout.samples.Paywall
 import de.apuri.physicslayout.samples.ShapesScreen
 import de.apuri.physicslayout.samples.SimpleScreen
 import de.apuri.physicslayout.samples.StarLauncherScreen
@@ -45,7 +44,6 @@ class MainActivity : ComponentActivity() {
                         composable("Shapes") { ShapesScreen() }
                         composable("Flying Tabs") { FlyingTabsScreen() }
                         composable("Simple") { SimpleScreen() }
-                        composable("Paywall") { Paywall() }
                     }
                 }
             }
@@ -60,7 +58,6 @@ fun SamplePicker(onSamplePicked: (String) -> Unit) {
         "Shapes",
         "Flying Tabs",
         "Simple",
-        "Paywall"
     )
 
     LazyColumn(

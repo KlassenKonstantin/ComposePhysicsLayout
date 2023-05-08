@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -39,10 +40,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
 import de.apuri.physicslayout.R
-import de.apuri.physicslayout.lib.drag.DragConfig
-import de.apuri.physicslayout.lib.PhysicsLayout
-import de.apuri.physicslayout.lib.PhysicsLayoutScope
-import de.apuri.physicslayout.lib.rememberSimulation
+import de.apuri.physicslayout.lib2.drag.DragConfig
+import de.apuri.physicslayout.lib2.PhysicsLayout
+import de.apuri.physicslayout.lib2.physicsBody
+import de.apuri.physicslayout.lib2.simulation.Clock
+import de.apuri.physicslayout.lib2.simulation.rememberClock
+import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 
 @Composable
 fun ShapesScreen() {
@@ -51,6 +54,7 @@ fun ShapesScreen() {
         color = MaterialTheme.colorScheme.background
     ) {
         var gravity by remember { mutableStateOf(Offset.Zero) }
+        val clock = rememberClock()
         GravitySensor { (x, y) ->
             gravity = Offset(-x, y).times(3f)
         }
@@ -67,14 +71,14 @@ fun ShapesScreen() {
                         .weight(1f)
                         .aspectRatio(1f)
                 ) {
-                    PhysicsInstance({ gravity }, RectangleShape)
+                    PhysicsInstance({ gravity }, RectangleShape, clock)
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(1f)
                 ) {
-                    PhysicsInstance({ gravity }, CircleShape)
+                    PhysicsInstance({ gravity }, CircleShape, clock)
                 }
             }
 
@@ -87,14 +91,14 @@ fun ShapesScreen() {
                         .weight(1f)
                         .aspectRatio(1f)
                 ) {
-                    PhysicsInstance({ gravity }, RoundedCornerShape(24.dp))
+                    PhysicsInstance({ gravity }, RoundedCornerShape(24.dp), clock)
                 }
                 Box(
                     modifier = Modifier
                         .weight(1f)
                         .aspectRatio(1f)
                 ) {
-                    PhysicsInstance({ gravity }, CutCornerShape(20))
+                    PhysicsInstance({ gravity }, CutCornerShape(20), clock)
                 }
             }
         }
@@ -104,16 +108,18 @@ fun ShapesScreen() {
 @Composable
 fun PhysicsInstance(
     provideGravity: () -> Offset,
-    shape: Shape
+    shape: Shape,
+    clock: Clock
 ) {
-    val simulation = rememberSimulation()
+    val simulation = rememberSimulation(clock)
     simulation.setGravity(provideGravity())
     PhysicsLayout(
         modifier = Modifier
+            .fillMaxSize()
             .border(1.dp, MaterialTheme.colorScheme.surfaceVariant, shape)
             .clip(shape),
         simulation = simulation,
-        shape = shape
+        shape = shape,
     ) {
         Ball(
             shape = CircleShape, ball = BallMeta(
@@ -172,18 +178,19 @@ fun PhysicsInstance(
 }
 
 @Composable
-private fun PhysicsLayoutScope.Ball(shape: Shape, ball: BallMeta) {
+private fun BoxScope.Ball(shape: Shape, ball: BallMeta) {
     Box(
         modifier = Modifier
-            .size(36.dp)
-            .background(Brush.verticalGradient(ball.containerColors), shape)
-            .border(BorderStroke(2.dp, Brush.verticalGradient(ball.borderColors)), shape)
-            .body(
+            .physicsBody(
                 shape = shape,
-                dragConfig = DragConfig.Draggable(
+                dragConfig = DragConfig(
                     maxForce = 75.0
                 ),
-            ),
+            )
+            .align(Alignment.Center)
+            .size(36.dp)
+            .background(Brush.verticalGradient(ball.containerColors), shape)
+            .border(BorderStroke(2.dp, Brush.verticalGradient(ball.borderColors)), shape),
         contentAlignment = Alignment.Center
     ) {
         if (ball.icon != null) {
