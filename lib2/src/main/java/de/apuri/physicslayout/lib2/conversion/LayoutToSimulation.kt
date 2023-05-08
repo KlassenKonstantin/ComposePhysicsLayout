@@ -82,7 +82,7 @@ internal class LayoutToSimulation(
         SimulationBody(
             width = lw.toSimulationSize(),
             height = lh.toSimulationSize(),
-            shape = shape.toSimulationBodyShape(coordinates.size)!!,
+            shape = shape.toSimulationBodyShape(coordinates.size),
             initialOffset = positionFromCenter.toSimulationVector2(),
             bodyConfig = bodyConfig,
         ) to positionFromCenter
@@ -110,8 +110,7 @@ internal class LayoutToSimulation(
         it.toSimulationVector2()
     }
 
-    private fun Shape?.toSimulationBodyShape(size: IntSize) = when {
-        this == null -> null
+    private fun Shape.toSimulationBodyShape(size: IntSize) = when {
         !isSupported() -> throw IllegalArgumentException("${this::class.simpleName} is not supported")
         isCircle() -> SimulationShape.Circle(size.width.toSimulationSize() / 2)
         isRectangle() -> SimulationShape.Rectangle(

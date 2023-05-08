@@ -184,7 +184,7 @@ private fun BoxScope.Ball(shape: Shape, ball: BallMeta) {
             .physicsBody(
                 shape = shape,
                 dragConfig = DragConfig(
-                    maxForce = 75.0
+                    maxForce = 100.0
                 ),
             )
             .align(Alignment.Center)

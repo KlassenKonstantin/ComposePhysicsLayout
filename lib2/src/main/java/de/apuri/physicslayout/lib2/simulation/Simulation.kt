@@ -78,7 +78,7 @@ private fun createDefaultWorld() = World<SimulationEntity<*>>().apply {
     gravity = Vector2(0.0, EARTH_GRAVITY)
     settings.apply {
         isAtRestDetectionEnabled = false
-        stepFrequency = 1.0 / 180
+        stepFrequency = 1.0 / 90
     }
 }
 
