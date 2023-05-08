@@ -3,31 +3,17 @@ package de.apuri.physicslayout.lib.drag
 import androidx.compose.runtime.Immutable
 
 @Immutable
-sealed class DragConfig {
-    object NotDraggable: DragConfig()
-
-    /**
-     * Connects the body and the touch point with a [org.dyn4j.dynamics.joint.PinJoint].
-     * Each pointer creates its own PinJoint.
-     */
-    data class Draggable(
-        /**
-         * The oscillation frequency in hz
-         */
-        val frequency: Double = DEF_FREQUENCY,
-
-        /**
-         * The damping ratio
-         */
-        val dampingRatio: Double = DEF_DAMPING_RATIO,
-
-        /**
-         * The maximum force
-         */
-        val maxForce: Double = DEF_MAX_FORCE,
-    ) : DragConfig()
-}
+/**
+ * Connects the body and the touch point with a [org.dyn4j.dynamics.joint.PinJoint].
+ * Each pointer creates its own PinJoint. [frequency] defines the oscillation frequency in hz.
+ * [dampingRatio] defines the damping ratio. [maxForce] defines the maximum force.
+ */
+data class DragConfig(
+    val frequency: Double = DEF_FREQUENCY,
+    val dampingRatio: Double = DEF_DAMPING_RATIO,
+    val maxForce: Double = DEF_MAX_FORCE,
+)
 
 const val DEF_FREQUENCY = 15.0
 const val DEF_DAMPING_RATIO = 0.3
-const val DEF_MAX_FORCE = 700.0
+const val DEF_MAX_FORCE = 10_000.0

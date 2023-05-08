@@ -46,11 +46,11 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
-import de.apuri.physicslayout.lib2.PhysicsLayout
-import de.apuri.physicslayout.lib2.simulation.Simulation
-import de.apuri.physicslayout.lib2.drag.DragConfig
-import de.apuri.physicslayout.lib2.physicsBody
-import de.apuri.physicslayout.lib2.simulation.rememberSimulation
+import de.apuri.physicslayout.lib.PhysicsLayout
+import de.apuri.physicslayout.lib.simulation.Simulation
+import de.apuri.physicslayout.lib.drag.DragConfig
+import de.apuri.physicslayout.lib.physicsBody
+import de.apuri.physicslayout.lib.simulation.rememberSimulation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue

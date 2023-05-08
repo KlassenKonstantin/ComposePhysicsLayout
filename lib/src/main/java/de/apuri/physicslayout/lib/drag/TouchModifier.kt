@@ -9,8 +9,8 @@ import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 
-fun Modifier.touch(
-    onTouchEvent: (TouchEvent) -> Unit
+internal fun Modifier.touch(
+    onTouchEvent: (LayoutTouchEvent) -> Unit
 ) = pointerInput(Unit) {
     val center = Offset(size.width / 2f, size.height / 2f)
     awaitEachGesture {
@@ -28,9 +28,9 @@ fun Modifier.touch(
             }
 
             onTouchEvent(
-                TouchEvent(
+                LayoutTouchEvent(
                     pointerId = change.id.value,
-                    localOffset = change.position - center,
+                    offset = change.position - center,
                     type = type,
                 )
             )

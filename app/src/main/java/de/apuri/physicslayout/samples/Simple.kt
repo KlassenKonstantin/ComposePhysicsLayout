@@ -31,12 +31,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import de.apuri.physicslayout.GravitySensor
-import de.apuri.physicslayout.lib2.BodyConfig
-import de.apuri.physicslayout.lib2.PhysicsLayout
-import de.apuri.physicslayout.lib2.drag.DragConfig
-import de.apuri.physicslayout.lib2.physicsBody
-import de.apuri.physicslayout.lib2.simulation.rememberClock
-import de.apuri.physicslayout.lib2.simulation.rememberSimulation
+import de.apuri.physicslayout.lib.BodyConfig
+import de.apuri.physicslayout.lib.PhysicsLayout
+import de.apuri.physicslayout.lib.drag.DragConfig
+import de.apuri.physicslayout.lib.physicsBody
+import de.apuri.physicslayout.lib.simulation.rememberClock
+import de.apuri.physicslayout.lib.simulation.rememberSimulation
 
 val colors = listOf(
     Color.Red,
