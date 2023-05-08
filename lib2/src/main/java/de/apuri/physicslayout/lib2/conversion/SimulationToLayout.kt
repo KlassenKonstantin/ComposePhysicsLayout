@@ -1,12 +1,14 @@
 package de.apuri.physicslayout.lib2.conversion
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.geometry.Offset
 import de.apuri.physicslayout.lib2.LayoutTransformation
 import de.apuri.physicslayout.lib2.simulation.SimulationTransformation
 
+/**
+ * Handles transformations from simulation to layout space
+ */
 @Immutable
 internal class SimulationToLayout(
     private val scale: Double

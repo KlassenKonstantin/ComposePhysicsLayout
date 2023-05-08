@@ -5,22 +5,12 @@ import androidx.compose.runtime.Immutable
 @Immutable
 /**
  * Connects the body and the touch point with a [org.dyn4j.dynamics.joint.PinJoint].
- * Each pointer creates its own PinJoint.
+ * Each pointer creates its own PinJoint. [frequency] defines the oscillation frequency in hz.
+ * [dampingRatio] defines the damping ratio. [maxForce] defines the maximum force.
  */
 data class DragConfig(
-    /**
-     * The oscillation frequency in hz
-     */
     val frequency: Double = DEF_FREQUENCY,
-
-    /**
-     * The damping ratio
-     */
     val dampingRatio: Double = DEF_DAMPING_RATIO,
-
-    /**
-     * The maximum force
-     */
     val maxForce: Double = DEF_MAX_FORCE,
 )
 

@@ -2,7 +2,6 @@ package de.apuri.physicslayout.lib2
 
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -18,7 +17,15 @@ import de.apuri.physicslayout.lib2.drag.DragConfig
 import de.apuri.physicslayout.lib2.drag.touch
 import java.util.UUID
 
-@Stable
+/**
+ * Introduces the Composable this Modifier is applied to to the physics world.
+ *
+ * This must be used on a Composable that is a direct or indirect child of a PhysicsLayout or else an Exception is
+ * thrown.
+ *
+ * [shape] defines the shape of this body. This should be the same as the shape of the Composable this is applied to in
+ * most cases. If [dragConfig] is not `null`, the body can be dragged by the user and behaves as defined in [DragConfig].
+ */
 fun Modifier.physicsBody(
     id: String? = null,
     shape: Shape = RectangleShape,
@@ -68,12 +75,34 @@ fun Modifier.physicsBody(
     )
 }
 
+/**
+ * Configures properties of the body
+ */
 @Immutable
 data class BodyConfig(
+    /**
+     * Whether or not this body is movable. Set to `false` for walls or floors
+     */
     val isStatic: Boolean = false,
+
+    /**
+     * The angular damping, see [org.dyn4j.dynamics.PhysicsBody.setAngularDamping]
+     */
     val angularDamping: Float = 0.7f,
+
+    /**
+     * The density, see [org.dyn4j.dynamics.PhysicsBody.addFixture]
+     */
     val density: Float = 1.0f,
+
+    /**
+     * The friction, see [org.dyn4j.dynamics.PhysicsBody.addFixture]
+     */
     val friction: Float = 0.2f,
+
+    /**
+     * The restitution, see [org.dyn4j.dynamics.PhysicsBody.addFixture]
+     */
     val restitution: Float = 0.4f,
 )
 

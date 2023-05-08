@@ -23,6 +23,11 @@ import de.apuri.physicslayout.lib2.simulation.rememberSimulation
 
 private val DEFAULT_SCALE = 32.dp
 
+/**
+ * This is the entry to the physics world. [shape] defines the border of the simulation or `null` if no borders are
+ * wanted. [scale] defines how many [Dp] should be considered one meter. Bodies should not be too small. As a rule of
+ * thumb use at least one meter for width and height.
+ */
 @Composable
 fun PhysicsLayout(
     modifier: Modifier = Modifier,

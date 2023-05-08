@@ -26,8 +26,14 @@ import de.apuri.physicslayout.lib2.toPoints
 import de.apuri.physicslayout.lib2.toRadius
 import org.dyn4j.geometry.Vector2
 
+/**
+ * The number of path segments a generic shape should consist of
+ */
 private const val PATH_SEGMENTS = 100
 
+/**
+ * Handles transformations from layout to simulation space
+ */
 @Stable
 internal class LayoutToSimulation(
     private val density: Density,
