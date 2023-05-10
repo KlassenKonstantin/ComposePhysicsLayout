@@ -94,7 +94,7 @@ fun GridScreen() {
                                     .weight(1f),
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                repeat(5) { row ->
+                                repeat(7) { row ->
                                     Box(
                                         Modifier
                                             .weight(1f)

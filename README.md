@@ -1,5 +1,5 @@
 # Physics Layout
-![Maven Central](https://img.shields.io/maven-central/v/io.github.klassenkonstantin/physics-layout?style=flat-square&versionPrefix=0.3)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.klassenkonstantin/physics-layout?style=flat-square&versionPrefix=0.4)
 
 This library offers a [dyn4j](https://www.dyn4j.org) wrapper for [Jetpack Compose](https://developer.android.com/jetpack/compose).
 
@@ -17,32 +17,32 @@ dependencies {
 ```
 
 # How to use
-To get started, create a `PhysicsLayout` and fill it with Composables. Every root level Composable in `PhysicsLayout` must use the `body` modifier to tell the simulation how the Composable should behave in the physics world.
+To get started, create a `PhysicsLayout` and add arbitrary content to it. Add the `physicsBody` modifier to Composables that should be part of the physics simulation.
 
 ## PhysicsLayout
 ```kotlin
 @Composable
 fun PhysicsLayout(
     modifier: Modifier = Modifier,
-    simulation: Simulation = rememberSimulation(),
-    onBodiesAdded: OnBodiesAdded? = null,
     shape: Shape? = RectangleShape,
-    content: @Composable PhysicsLayoutScope.() -> Unit,
+    scale: Dp = DEFAULT_SCALE,
+    simulation: Simulation = rememberSimulation(),
+    content: @Composable BoxScope.() -> Unit
 )
 ```
-- `simulation`: Does the mapping between layout and physics engine
-- `onBodiesAdded`: Called when the layout bodies composed in this layout are ready to be used
 - `shape`: The shape of the outer border of the `PhysicsLayout`
+- `scale`: How many Dps should be considered one meter. Bodies shouldn't be smaller than one meter
+- `simulation`: Does the mapping between layout and physics engine
+- `content`: The arbitrary layout
 
-## body modifier
+## physicsBody modifier
 ```kotlin
-fun Modifier.body(
+fun Modifier.physicsBody(
     id: String? = null,
     shape: Shape = RectangleShape,
-    isStatic: Boolean = false,
-    initialTranslation: DpOffset = DpOffset.Zero,
-    dragConfig: DragConfig = DragConfig.NotDraggable
-): Modifier
+    bodyConfig: BodyConfig = BodyConfig(),
+    dragConfig: DragConfig? = null,
+)
 ```
 - `id`: The id the body should have in the simulation. Useful for operations that act directly on bodies (not yet supported).
 - `shape`: Describes the outer bounds of the body. Supported shapes are:
@@ -50,31 +50,41 @@ fun Modifier.body(
   - [CircleShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/package-summary#CircleShape())
   - [RoundedCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/RoundedCornerShape)
   - [CutCornerShape](https://developer.android.com/reference/kotlin/androidx/compose/foundation/shape/CutCornerShape)
-- `isStatic`: Set true for unmovable bodies like walls and floors.
-- `initialTranslation`: Where this body should be placed in the layout. An `Offset` of (0,0) is the center of the layout, not top left.
-- `dragConfig`: Set to `DragConfig.Draggable` to enable drag support
+- `bodyConfig`: Configures properties of the body
+- `dragConfig`: Set a `DragConfig` to enable drag support, or `null` to disable dragging
+
+## Clock
+By default `Simulation` uses a default `Clock` which automatically starts running. To pause and resume a `Clock`, create an instance with `rememberClock()` and pass that to the `Simulation`.
 
 ### Example usage
 ```kotlin
-PhysicsLayout {
-    Card(
-        modifier = Modifier.body(
-            shape = CircleShape,
-        ),
-        shape = CircleShape,
+@Composable
+fun SimpleScreen() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
     ) {
-        Icon(
-            modifier = Modifier
-                .size(32.dp)
-                .padding(4.dp),
-            imageVector = Icons.Default.Star,
-            contentDescription = "Star",
-            tint = Color.White
-        )
+        PhysicsLayout {
+            Card(
+                modifier = Modifier.physicsBody(
+                    shape = CircleShape,
+                ).align(Alignment.Center),
+                shape = CircleShape,
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .padding(4.dp),
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Star",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
 ```
-This would add a ball with a star in the center of the layout, which then starts falling to the ground.
+This example adds a ball with a star in the center of the layout, which then starts falling to the ground.
 
 > Note: The `shape` must be set on both the body modifier and the `Card`.
 
@@ -86,3 +96,4 @@ If you need to change the gravity of the simulated world, use `Simulation.setGra
 - In general, what is true for all of Compose is especially true for this Layout: **Release builds perform way better than debug builds**.
 - State is not restored on config changes 😱.
 - Currently there is no way to observe bodies / collosions / etc.
+- Not tested with scrolling containers
