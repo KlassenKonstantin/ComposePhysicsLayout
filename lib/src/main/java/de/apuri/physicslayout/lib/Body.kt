@@ -2,14 +2,18 @@ package de.apuri.physicslayout.lib
 
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onPlaced
 import de.apuri.physicslayout.lib.conversion.LocalLayoutToSimulation
 import de.apuri.physicslayout.lib.conversion.LocalSimulationToLayout
@@ -37,6 +41,19 @@ fun Modifier.physicsBody(
     val layoutToSimulation = LocalLayoutToSimulation.current
     val simulationToLayout = LocalSimulationToLayout.current
     val layoutOffset = remember { mutableStateOf(Offset.Zero) }
+    var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
+    LaunchedEffect(coordinates, bodyConfig) {
+        coordinates?.let {
+            val (body, offsetFromCenter) = layoutToSimulation.convertBody(
+                coordinates = it,
+                shape = shape,
+                bodyConfig = bodyConfig,
+            )
+            layoutOffset.value = offsetFromCenter
+            simulation.syncSimulationBody(bodyId, body)
+        }
+    }
 
     DisposableEffect(id) {
         onDispose {
@@ -44,14 +61,8 @@ fun Modifier.physicsBody(
         }
     }
 
-    onPlaced { coordinates ->
-        val (body, offsetFromCenter) = layoutToSimulation.convertBody(
-            coordinates = coordinates,
-            shape = shape,
-            bodyConfig = bodyConfig,
-        )
-        layoutOffset.value = offsetFromCenter
-        simulation.syncSimulationBody(bodyId, body)
+    onPlaced {
+        coordinates = it
     }.graphicsLayer {
         simulation.transformations[bodyId]?.let {
             val transformation = simulationToLayout.convertTransformation(
