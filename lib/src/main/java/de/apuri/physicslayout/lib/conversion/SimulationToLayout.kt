@@ -15,11 +15,12 @@ internal class SimulationToLayout(
 ) {
     private fun Double.toLayoutSize() = (this * scale).toFloat()
 
-    fun convertTransformation(offset: Offset, simulationTransformation: SimulationTransformation) = LayoutTransformation(
-        translationX = simulationTransformation.translationX.toLayoutSize() - offset.x,
-        translationY = simulationTransformation.translationY.toLayoutSize() - offset.y,
-        rotation = simulationTransformation.rotation.toFloat()
-    )
+    fun convertTransformation(offset: Offset, simulationTransformation: SimulationTransformation) =
+        LayoutTransformation(
+            translationX = simulationTransformation.translationX.toLayoutSize() - offset.x,
+            translationY = simulationTransformation.translationY.toLayoutSize() - offset.y,
+            rotation = simulationTransformation.rotation.toFloat()
+        )
 }
 
 internal val LocalSimulationToLayout = staticCompositionLocalOf<SimulationToLayout> {

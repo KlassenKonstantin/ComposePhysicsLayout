@@ -63,27 +63,29 @@ fun Modifier.physicsBody(
 
     onPlaced {
         coordinates = it
-    }.graphicsLayer {
-        simulation.transformations[bodyId]?.let {
-            val transformation = simulationToLayout.convertTransformation(
-                offset = layoutOffset.value,
-                simulationTransformation = it
-            )
-            translationX = transformation.translationX
-            translationY = transformation.translationY
-            rotationZ = transformation.rotation
-        }
-    }.then(
-        if (dragConfig != null) {
-            touch {
-                simulation.drag(
-                    bodyId = bodyId,
-                    touchEvent = layoutToSimulation.convertTouchEvent(it),
-                    dragConfig = dragConfig
+    }
+        .graphicsLayer {
+            simulation.transformations[bodyId]?.let {
+                val transformation = simulationToLayout.convertTransformation(
+                    offset = layoutOffset.value,
+                    simulationTransformation = it
                 )
+                translationX = transformation.translationX
+                translationY = transformation.translationY
+                rotationZ = transformation.rotation
             }
-        } else Modifier
-    )
+        }
+        .then(
+            if (dragConfig != null) {
+                touch {
+                    simulation.drag(
+                        bodyId = bodyId,
+                        touchEvent = layoutToSimulation.convertTouchEvent(it),
+                        dragConfig = dragConfig
+                    )
+                }
+            } else Modifier
+        )
 }
 
 /**
